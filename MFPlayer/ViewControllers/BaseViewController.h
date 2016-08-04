@@ -7,9 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MBProgressHUD.h"
+
 
 @interface BaseViewController : UIViewController
 @property (nonatomic,retain) MBProgressHUD* hud;
+
 - (void)addHud;
 - (void)addHudWithMessage:(NSString*)message;
 - (void)removeHud;

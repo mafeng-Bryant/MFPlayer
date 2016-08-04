@@ -38,6 +38,16 @@
 		E2923A561D532B7F0058BAC6 /* VideoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A551D532B7F0058BAC6 /* VideoModel.m */; };
 		E2923A591D532DCF0058BAC6 /* BaseNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A581D532DCF0058BAC6 /* BaseNavigationController.m */; };
 		E2923A5C1D532DFF0058BAC6 /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A5B1D532DFF0058BAC6 /* BaseViewController.m */; };
+		E2923A631D532FF40058BAC6 /* MBProgressHUD+Show.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A5F1D532FF40058BAC6 /* MBProgressHUD+Show.m */; };
+		E2923A641D532FF40058BAC6 /* MBProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = E2923A601D532FF40058BAC6 /* MBProgressHUD.bundle */; };
+		E2923A651D532FF40058BAC6 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A621D532FF40058BAC6 /* MBProgressHUD.m */; };
+		E2923A6E1D53323B0058BAC6 /* SinaViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A6C1D53323B0058BAC6 /* SinaViewController.m */; };
+		E2923A6F1D53323B0058BAC6 /* SinaViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A6D1D53323B0058BAC6 /* SinaViewController.xib */; };
+		E2923A731D53326C0058BAC6 /* NetEaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A711D53326C0058BAC6 /* NetEaseViewController.m */; };
+		E2923A741D53326C0058BAC6 /* NetEaseViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A721D53326C0058BAC6 /* NetEaseViewController.xib */; };
+		E2923A781D5333120058BAC6 /* PersonCenterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A761D5333120058BAC6 /* PersonCenterViewController.m */; };
+		E2923A791D5333120058BAC6 /* PersonCenterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */; };
+		E2923A821D5336150058BAC6 /* TencentNewsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A811D5336150058BAC6 /* TencentNewsViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +114,22 @@
 		E2923A581D532DCF0058BAC6 /* BaseNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseNavigationController.m; sourceTree = "<group>"; };
 		E2923A5A1D532DFF0058BAC6 /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
 		E2923A5B1D532DFF0058BAC6 /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
+		E2923A5E1D532FF40058BAC6 /* MBProgressHUD+Show.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MBProgressHUD+Show.h"; sourceTree = "<group>"; };
+		E2923A5F1D532FF40058BAC6 /* MBProgressHUD+Show.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MBProgressHUD+Show.m"; sourceTree = "<group>"; };
+		E2923A601D532FF40058BAC6 /* MBProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MBProgressHUD.bundle; sourceTree = "<group>"; };
+		E2923A611D532FF40058BAC6 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		E2923A621D532FF40058BAC6 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		E2923A6B1D53323B0058BAC6 /* SinaViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinaViewController.h; sourceTree = "<group>"; };
+		E2923A6C1D53323B0058BAC6 /* SinaViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SinaViewController.m; sourceTree = "<group>"; };
+		E2923A6D1D53323B0058BAC6 /* SinaViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SinaViewController.xib; sourceTree = "<group>"; };
+		E2923A701D53326C0058BAC6 /* NetEaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetEaseViewController.h; sourceTree = "<group>"; };
+		E2923A711D53326C0058BAC6 /* NetEaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetEaseViewController.m; sourceTree = "<group>"; };
+		E2923A721D53326C0058BAC6 /* NetEaseViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NetEaseViewController.xib; sourceTree = "<group>"; };
+		E2923A751D5333120058BAC6 /* PersonCenterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PersonCenterViewController.h; sourceTree = "<group>"; };
+		E2923A761D5333120058BAC6 /* PersonCenterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PersonCenterViewController.m; sourceTree = "<group>"; };
+		E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PersonCenterViewController.xib; sourceTree = "<group>"; };
+		E2923A801D5336150058BAC6 /* TencentNewsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TencentNewsViewController.h; sourceTree = "<group>"; };
+		E2923A811D5336150058BAC6 /* TencentNewsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TencentNewsViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +200,8 @@
 		E29239EE1D53192B0058BAC6 /* MFPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				E2923A7A1D5334900058BAC6 /* View */,
+				E2923A5D1D532FE80058BAC6 /* MBProgressHUD */,
 				E2923A501D532AE90058BAC6 /* Model */,
 				E2923A2B1D5328920058BAC6 /* Resource */,
 				E2923A271D5326F80058BAC6 /* Helper */,
@@ -231,6 +259,17 @@
 				E2923A5B1D532DFF0058BAC6 /* BaseViewController.m */,
 				E2923A571D532DCF0058BAC6 /* BaseNavigationController.h */,
 				E2923A581D532DCF0058BAC6 /* BaseNavigationController.m */,
+				E2923A801D5336150058BAC6 /* TencentNewsViewController.h */,
+				E2923A811D5336150058BAC6 /* TencentNewsViewController.m */,
+				E2923A6B1D53323B0058BAC6 /* SinaViewController.h */,
+				E2923A6C1D53323B0058BAC6 /* SinaViewController.m */,
+				E2923A6D1D53323B0058BAC6 /* SinaViewController.xib */,
+				E2923A701D53326C0058BAC6 /* NetEaseViewController.h */,
+				E2923A711D53326C0058BAC6 /* NetEaseViewController.m */,
+				E2923A721D53326C0058BAC6 /* NetEaseViewController.xib */,
+				E2923A751D5333120058BAC6 /* PersonCenterViewController.h */,
+				E2923A761D5333120058BAC6 /* PersonCenterViewController.m */,
+				E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -278,6 +317,25 @@
 				E2923A521D532B0B0058BAC6 /* SidModel.m */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		E2923A5D1D532FE80058BAC6 /* MBProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				E2923A5E1D532FF40058BAC6 /* MBProgressHUD+Show.h */,
+				E2923A5F1D532FF40058BAC6 /* MBProgressHUD+Show.m */,
+				E2923A601D532FF40058BAC6 /* MBProgressHUD.bundle */,
+				E2923A611D532FF40058BAC6 /* MBProgressHUD.h */,
+				E2923A621D532FF40058BAC6 /* MBProgressHUD.m */,
+			);
+			path = MBProgressHUD;
+			sourceTree = "<group>";
+		};
+		E2923A7A1D5334900058BAC6 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -394,18 +452,22 @@
 				E2923A4A1D5328920058BAC6 /* tab_icon05@3x.png in Resources */,
 				E2923A451D5328920058BAC6 /* play.png in Resources */,
 				E2923A441D5328920058BAC6 /* message_s@2x.png in Resources */,
+				E2923A791D5333120058BAC6 /* PersonCenterViewController.xib in Resources */,
 				E2923A401D5328920058BAC6 /* found@2x.png in Resources */,
 				E2923A3E1D5328920058BAC6 /* clear@2x.png in Resources */,
 				E2923A4E1D5328920058BAC6 /* video_play_btn_bg@2x.png in Resources */,
 				E29239FF1D53192B0058BAC6 /* LaunchScreen.storyboard in Resources */,
 				E2923A461D5328920058BAC6 /* playcount.png in Resources */,
 				E29239FC1D53192B0058BAC6 /* Assets.xcassets in Resources */,
+				E2923A741D53326C0058BAC6 /* NetEaseViewController.xib in Resources */,
 				E2923A481D5328920058BAC6 /* share_s@2x.png in Resources */,
 				E2923A471D5328920058BAC6 /* share@2x.png in Resources */,
+				E2923A6F1D53323B0058BAC6 /* SinaViewController.xib in Resources */,
 				E2923A421D5328920058BAC6 /* logo.png in Resources */,
 				E2923A3F1D5328920058BAC6 /* close@2x.png in Resources */,
 				E2923A491D5328920058BAC6 /* tab_icon05@2x.png in Resources */,
 				E2923A411D5328920058BAC6 /* found_s@2x.png in Resources */,
+				E2923A641D532FF40058BAC6 /* MBProgressHUD.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,11 +543,17 @@
 				E29239F41D53192B0058BAC6 /* AppDelegate.m in Sources */,
 				E2923A5C1D532DFF0058BAC6 /* BaseViewController.m in Sources */,
 				E2923A591D532DCF0058BAC6 /* BaseNavigationController.m in Sources */,
+				E2923A731D53326C0058BAC6 /* NetEaseViewController.m in Sources */,
 				E2923A2A1D53270F0058BAC6 /* DataManager.m in Sources */,
 				E2923A531D532B0B0058BAC6 /* SidModel.m in Sources */,
+				E2923A781D5333120058BAC6 /* PersonCenterViewController.m in Sources */,
 				E2923A261D531EC00058BAC6 /* MFRootTabBarController.m in Sources */,
 				E29239F11D53192B0058BAC6 /* main.m in Sources */,
+				E2923A651D532FF40058BAC6 /* MBProgressHUD.m in Sources */,
 				E2923A561D532B7F0058BAC6 /* VideoModel.m in Sources */,
+				E2923A6E1D53323B0058BAC6 /* SinaViewController.m in Sources */,
+				E2923A631D532FF40058BAC6 /* MBProgressHUD+Show.m in Sources */,
+				E2923A821D5336150058BAC6 /* TencentNewsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
