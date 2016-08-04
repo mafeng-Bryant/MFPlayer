@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3FF62BB75047E41124DBD24E /* Pods_MFPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25763D093DAB7F031B1F4FC6 /* Pods_MFPlayer.framework */; };
 		E29239F11D53192B0058BAC6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F01D53192B0058BAC6 /* main.m */; };
 		E29239F41D53192B0058BAC6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F31D53192B0058BAC6 /* AppDelegate.m */; };
 		E29239F71D53192B0058BAC6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F61D53192B0058BAC6 /* ViewController.m */; };
@@ -35,6 +36,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		25763D093DAB7F031B1F4FC6 /* Pods_MFPlayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MFPlayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		69DB5D6CF19AEF08028397B8 /* Pods-MFPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MFPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-MFPlayer/Pods-MFPlayer.release.xcconfig"; sourceTree = "<group>"; };
+		A7B3E2C5B751F4E36AA8643B /* Pods-MFPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MFPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MFPlayer/Pods-MFPlayer.debug.xcconfig"; sourceTree = "<group>"; };
 		E29239EC1D53192B0058BAC6 /* MFPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MFPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E29239F01D53192B0058BAC6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E29239F21D53192B0058BAC6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -58,6 +62,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FF62BB75047E41124DBD24E /* Pods_MFPlayer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1C95B44561AD9F8731E823DE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				25763D093DAB7F031B1F4FC6 /* Pods_MFPlayer.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		81A9A5C8296236E4E8B01A50 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A7B3E2C5B751F4E36AA8643B /* Pods-MFPlayer.debug.xcconfig */,
+				69DB5D6CF19AEF08028397B8 /* Pods-MFPlayer.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		E29239E31D53192B0058BAC6 = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +107,8 @@
 				E2923A081D53192B0058BAC6 /* MFPlayerTests */,
 				E2923A131D53192B0058BAC6 /* MFPlayerUITests */,
 				E29239ED1D53192B0058BAC6 /* Products */,
+				81A9A5C8296236E4E8B01A50 /* Pods */,
+				1C95B44561AD9F8731E823DE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -147,9 +171,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E2923A191D53192B0058BAC6 /* Build configuration list for PBXNativeTarget "MFPlayer" */;
 			buildPhases = (
+				2603999539959667A6137D38 /* 📦 Check Pods Manifest.lock */,
 				E29239E81D53192B0058BAC6 /* Sources */,
 				E29239E91D53192B0058BAC6 /* Frameworks */,
 				E29239EA1D53192B0058BAC6 /* Resources */,
+				965FDB8BBDE960F9340EDA78 /* 📦 Embed Pods Frameworks */,
+				2DB7FA372E9F1FDA26E4BEE0 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -264,6 +291,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2603999539959667A6137D38 /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		2DB7FA372E9F1FDA26E4BEE0 /* 📦 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MFPlayer/Pods-MFPlayer-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		965FDB8BBDE960F9340EDA78 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MFPlayer/Pods-MFPlayer-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E29239E81D53192B0058BAC6 /* Sources */ = {
@@ -413,6 +488,7 @@
 		};
 		E2923A1A1D53192B0058BAC6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A7B3E2C5B751F4E36AA8643B /* Pods-MFPlayer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = MFPlayer/Info.plist;
@@ -424,6 +500,7 @@
 		};
 		E2923A1B1D53192B0058BAC6 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 69DB5D6CF19AEF08028397B8 /* Pods-MFPlayer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = MFPlayer/Info.plist;
@@ -498,6 +575,7 @@
 				E2923A1B1D53192B0058BAC6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E2923A1C1D53192B0058BAC6 /* Build configuration list for PBXNativeTarget "MFPlayerTests" */ = {
 			isa = XCConfigurationList;
@@ -506,6 +584,7 @@
 				E2923A1E1D53192B0058BAC6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E2923A1F1D53192B0058BAC6 /* Build configuration list for PBXNativeTarget "MFPlayerUITests" */ = {
 			isa = XCConfigurationList;
@@ -514,6 +593,7 @@
 				E2923A211D53192B0058BAC6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
