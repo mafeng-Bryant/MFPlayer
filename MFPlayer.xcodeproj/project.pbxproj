@@ -10,12 +10,11 @@
 		3FF62BB75047E41124DBD24E /* Pods_MFPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25763D093DAB7F031B1F4FC6 /* Pods_MFPlayer.framework */; };
 		E29239F11D53192B0058BAC6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F01D53192B0058BAC6 /* main.m */; };
 		E29239F41D53192B0058BAC6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F31D53192B0058BAC6 /* AppDelegate.m */; };
-		E29239F71D53192B0058BAC6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F61D53192B0058BAC6 /* ViewController.m */; };
-		E29239FA1D53192B0058BAC6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E29239F81D53192B0058BAC6 /* Main.storyboard */; };
 		E29239FC1D53192B0058BAC6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E29239FB1D53192B0058BAC6 /* Assets.xcassets */; };
 		E29239FF1D53192B0058BAC6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E29239FD1D53192B0058BAC6 /* LaunchScreen.storyboard */; };
 		E2923A0A1D53192B0058BAC6 /* MFPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A091D53192B0058BAC6 /* MFPlayerTests.m */; };
 		E2923A151D53192B0058BAC6 /* MFPlayerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A141D53192B0058BAC6 /* MFPlayerUITests.m */; };
+		E2923A261D531EC00058BAC6 /* MFRootTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A251D531EC00058BAC6 /* MFRootTabBarController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,9 +42,6 @@
 		E29239F01D53192B0058BAC6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E29239F21D53192B0058BAC6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E29239F31D53192B0058BAC6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		E29239F51D53192B0058BAC6 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		E29239F61D53192B0058BAC6 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		E29239F91D53192B0058BAC6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		E29239FB1D53192B0058BAC6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E29239FE1D53192B0058BAC6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E2923A001D53192B0058BAC6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -55,6 +51,8 @@
 		E2923A101D53192B0058BAC6 /* MFPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MFPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2923A141D53192B0058BAC6 /* MFPlayerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MFPlayerUITests.m; sourceTree = "<group>"; };
 		E2923A161D53192B0058BAC6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2923A241D531EC00058BAC6 /* MFRootTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFRootTabBarController.h; sourceTree = "<group>"; };
+		E2923A251D531EC00058BAC6 /* MFRootTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFRootTabBarController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,11 +123,10 @@
 		E29239EE1D53192B0058BAC6 /* MFPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				E2923A231D531E340058BAC6 /* ViewControllers */,
+				E2923A221D531E2D0058BAC6 /* UITabBarController */,
 				E29239F21D53192B0058BAC6 /* AppDelegate.h */,
 				E29239F31D53192B0058BAC6 /* AppDelegate.m */,
-				E29239F51D53192B0058BAC6 /* ViewController.h */,
-				E29239F61D53192B0058BAC6 /* ViewController.m */,
-				E29239F81D53192B0058BAC6 /* Main.storyboard */,
 				E29239FB1D53192B0058BAC6 /* Assets.xcassets */,
 				E29239FD1D53192B0058BAC6 /* LaunchScreen.storyboard */,
 				E2923A001D53192B0058BAC6 /* Info.plist */,
@@ -162,6 +159,22 @@
 				E2923A161D53192B0058BAC6 /* Info.plist */,
 			);
 			path = MFPlayerUITests;
+			sourceTree = "<group>";
+		};
+		E2923A221D531E2D0058BAC6 /* UITabBarController */ = {
+			isa = PBXGroup;
+			children = (
+				E2923A241D531EC00058BAC6 /* MFRootTabBarController.h */,
+				E2923A251D531EC00058BAC6 /* MFRootTabBarController.m */,
+			);
+			path = UITabBarController;
+			sourceTree = "<group>";
+		};
+		E2923A231D531E340058BAC6 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -272,7 +285,6 @@
 			files = (
 				E29239FF1D53192B0058BAC6 /* LaunchScreen.storyboard in Resources */,
 				E29239FC1D53192B0058BAC6 /* Assets.xcassets in Resources */,
-				E29239FA1D53192B0058BAC6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,8 +357,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E29239F71D53192B0058BAC6 /* ViewController.m in Sources */,
 				E29239F41D53192B0058BAC6 /* AppDelegate.m in Sources */,
+				E2923A261D531EC00058BAC6 /* MFRootTabBarController.m in Sources */,
 				E29239F11D53192B0058BAC6 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -383,14 +395,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		E29239F81D53192B0058BAC6 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				E29239F91D53192B0058BAC6 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		E29239FD1D53192B0058BAC6 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
