@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		3FF62BB75047E41124DBD24E /* Pods_MFPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25763D093DAB7F031B1F4FC6 /* Pods_MFPlayer.framework */; };
+		E22BA03A1D533A92004DEDA4 /* TencentNewsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E22BA0381D533A92004DEDA4 /* TencentNewsViewController.m */; };
+		E22BA03B1D533A92004DEDA4 /* TencentNewsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E22BA0391D533A92004DEDA4 /* TencentNewsViewController.xib */; };
+		E22BA03F1D533BD3004DEDA4 /* VideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E22BA03D1D533BD3004DEDA4 /* VideoCell.m */; };
+		E22BA0401D533BD3004DEDA4 /* VideoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = E22BA03E1D533BD3004DEDA4 /* VideoCell.xib */; };
+		E22BA0441D53427F004DEDA4 /* MFPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = E22BA0431D53427F004DEDA4 /* MFPlayer.m */; };
+		E22BA0461D534C71004DEDA4 /* MFPlayer.bundle in Resources */ = {isa = PBXBuildFile; fileRef = E22BA0451D534C71004DEDA4 /* MFPlayer.bundle */; };
 		E29239F11D53192B0058BAC6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F01D53192B0058BAC6 /* main.m */; };
 		E29239F41D53192B0058BAC6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E29239F31D53192B0058BAC6 /* AppDelegate.m */; };
 		E29239FC1D53192B0058BAC6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E29239FB1D53192B0058BAC6 /* Assets.xcassets */; };
@@ -47,7 +53,6 @@
 		E2923A741D53326C0058BAC6 /* NetEaseViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A721D53326C0058BAC6 /* NetEaseViewController.xib */; };
 		E2923A781D5333120058BAC6 /* PersonCenterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A761D5333120058BAC6 /* PersonCenterViewController.m */; };
 		E2923A791D5333120058BAC6 /* PersonCenterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */; };
-		E2923A821D5336150058BAC6 /* TencentNewsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A811D5336150058BAC6 /* TencentNewsViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +76,15 @@
 		25763D093DAB7F031B1F4FC6 /* Pods_MFPlayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MFPlayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		69DB5D6CF19AEF08028397B8 /* Pods-MFPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MFPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-MFPlayer/Pods-MFPlayer.release.xcconfig"; sourceTree = "<group>"; };
 		A7B3E2C5B751F4E36AA8643B /* Pods-MFPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MFPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MFPlayer/Pods-MFPlayer.debug.xcconfig"; sourceTree = "<group>"; };
+		E22BA0371D533A92004DEDA4 /* TencentNewsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TencentNewsViewController.h; sourceTree = "<group>"; };
+		E22BA0381D533A92004DEDA4 /* TencentNewsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TencentNewsViewController.m; sourceTree = "<group>"; };
+		E22BA0391D533A92004DEDA4 /* TencentNewsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TencentNewsViewController.xib; sourceTree = "<group>"; };
+		E22BA03C1D533BD3004DEDA4 /* VideoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoCell.h; sourceTree = "<group>"; };
+		E22BA03D1D533BD3004DEDA4 /* VideoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoCell.m; sourceTree = "<group>"; };
+		E22BA03E1D533BD3004DEDA4 /* VideoCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VideoCell.xib; sourceTree = "<group>"; };
+		E22BA0421D53427F004DEDA4 /* MFPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFPlayer.h; sourceTree = "<group>"; };
+		E22BA0431D53427F004DEDA4 /* MFPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFPlayer.m; sourceTree = "<group>"; };
+		E22BA0451D534C71004DEDA4 /* MFPlayer.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MFPlayer.bundle; sourceTree = "<group>"; };
 		E29239EC1D53192B0058BAC6 /* MFPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MFPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E29239F01D53192B0058BAC6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E29239F21D53192B0058BAC6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -128,8 +142,6 @@
 		E2923A751D5333120058BAC6 /* PersonCenterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PersonCenterViewController.h; sourceTree = "<group>"; };
 		E2923A761D5333120058BAC6 /* PersonCenterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PersonCenterViewController.m; sourceTree = "<group>"; };
 		E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PersonCenterViewController.xib; sourceTree = "<group>"; };
-		E2923A801D5336150058BAC6 /* TencentNewsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TencentNewsViewController.h; sourceTree = "<group>"; };
-		E2923A811D5336150058BAC6 /* TencentNewsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TencentNewsViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +187,16 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		E22BA0411D534254004DEDA4 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				E22BA0451D534C71004DEDA4 /* MFPlayer.bundle */,
+				E22BA0421D53427F004DEDA4 /* MFPlayer.h */,
+				E22BA0431D53427F004DEDA4 /* MFPlayer.m */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
 		E29239E31D53192B0058BAC6 = {
 			isa = PBXGroup;
 			children = (
@@ -200,6 +222,7 @@
 		E29239EE1D53192B0058BAC6 /* MFPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				E22BA0411D534254004DEDA4 /* Player */,
 				E2923A7A1D5334900058BAC6 /* View */,
 				E2923A5D1D532FE80058BAC6 /* MBProgressHUD */,
 				E2923A501D532AE90058BAC6 /* Model */,
@@ -259,8 +282,9 @@
 				E2923A5B1D532DFF0058BAC6 /* BaseViewController.m */,
 				E2923A571D532DCF0058BAC6 /* BaseNavigationController.h */,
 				E2923A581D532DCF0058BAC6 /* BaseNavigationController.m */,
-				E2923A801D5336150058BAC6 /* TencentNewsViewController.h */,
-				E2923A811D5336150058BAC6 /* TencentNewsViewController.m */,
+				E22BA0371D533A92004DEDA4 /* TencentNewsViewController.h */,
+				E22BA0381D533A92004DEDA4 /* TencentNewsViewController.m */,
+				E22BA0391D533A92004DEDA4 /* TencentNewsViewController.xib */,
 				E2923A6B1D53323B0058BAC6 /* SinaViewController.h */,
 				E2923A6C1D53323B0058BAC6 /* SinaViewController.m */,
 				E2923A6D1D53323B0058BAC6 /* SinaViewController.xib */,
@@ -334,6 +358,9 @@
 		E2923A7A1D5334900058BAC6 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				E22BA03C1D533BD3004DEDA4 /* VideoCell.h */,
+				E22BA03D1D533BD3004DEDA4 /* VideoCell.m */,
+				E22BA03E1D533BD3004DEDA4 /* VideoCell.xib */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -447,8 +474,10 @@
 				E2923A4C1D5328920058BAC6 /* tab_icon05_on@3x.png in Resources */,
 				E2923A4F1D5328920058BAC6 /* WMPlayer.gif in Resources */,
 				E2923A431D5328920058BAC6 /* message@2x.png in Resources */,
+				E22BA03B1D533A92004DEDA4 /* TencentNewsViewController.xib in Resources */,
 				E2923A4D1D5328920058BAC6 /* time.png in Resources */,
 				E2923A4B1D5328920058BAC6 /* tab_icon05_on@2x.png in Resources */,
+				E22BA0461D534C71004DEDA4 /* MFPlayer.bundle in Resources */,
 				E2923A4A1D5328920058BAC6 /* tab_icon05@3x.png in Resources */,
 				E2923A451D5328920058BAC6 /* play.png in Resources */,
 				E2923A441D5328920058BAC6 /* message_s@2x.png in Resources */,
@@ -458,6 +487,7 @@
 				E2923A4E1D5328920058BAC6 /* video_play_btn_bg@2x.png in Resources */,
 				E29239FF1D53192B0058BAC6 /* LaunchScreen.storyboard in Resources */,
 				E2923A461D5328920058BAC6 /* playcount.png in Resources */,
+				E22BA0401D533BD3004DEDA4 /* VideoCell.xib in Resources */,
 				E29239FC1D53192B0058BAC6 /* Assets.xcassets in Resources */,
 				E2923A741D53326C0058BAC6 /* NetEaseViewController.xib in Resources */,
 				E2923A481D5328920058BAC6 /* share_s@2x.png in Resources */,
@@ -541,9 +571,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				E29239F41D53192B0058BAC6 /* AppDelegate.m in Sources */,
+				E22BA03F1D533BD3004DEDA4 /* VideoCell.m in Sources */,
 				E2923A5C1D532DFF0058BAC6 /* BaseViewController.m in Sources */,
 				E2923A591D532DCF0058BAC6 /* BaseNavigationController.m in Sources */,
 				E2923A731D53326C0058BAC6 /* NetEaseViewController.m in Sources */,
+				E22BA0441D53427F004DEDA4 /* MFPlayer.m in Sources */,
 				E2923A2A1D53270F0058BAC6 /* DataManager.m in Sources */,
 				E2923A531D532B0B0058BAC6 /* SidModel.m in Sources */,
 				E2923A781D5333120058BAC6 /* PersonCenterViewController.m in Sources */,
@@ -553,7 +585,7 @@
 				E2923A561D532B7F0058BAC6 /* VideoModel.m in Sources */,
 				E2923A6E1D53323B0058BAC6 /* SinaViewController.m in Sources */,
 				E2923A631D532FF40058BAC6 /* MBProgressHUD+Show.m in Sources */,
-				E2923A821D5336150058BAC6 /* TencentNewsViewController.m in Sources */,
+				E22BA03A1D533A92004DEDA4 /* TencentNewsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

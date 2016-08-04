@@ -23,26 +23,26 @@
     [super viewDidLoad];
 
     TencentNewsViewController *tencentVC = [[TencentNewsViewController alloc]init];
-    tencentVC.title = @"腾讯";
+    tencentVC.title = @"首页";
     
     BaseNavigationController *tencentNav = [[BaseNavigationController alloc]initWithRootViewController:tencentVC];
-    tencentNav.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"腾讯" image:[UIImage imageNamed:@"found@2x.png"] selectedImage:[UIImage imageNamed:@"found_s@2x.png"]];
+    tencentNav.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"首页" image:[UIImage imageNamed:@"found@2x.png"] selectedImage:[UIImage imageNamed:@"found_s@2x.png"]];
     tencentNav.navigationBar.barTintColor = [UIColor redColor];
     
     
     
     SinaViewController *sinaVC = [[SinaViewController alloc]init];
-    sinaVC.title = @"新浪";
+    sinaVC.title = @"新浪视频";
     BaseNavigationController *sinaNav = [[BaseNavigationController alloc]initWithRootViewController:sinaVC];
     
-    sinaNav.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"新浪" image:[UIImage imageNamed:@"message@2x.png"] selectedImage:[UIImage imageNamed:@"message_s@2x.png"]];
+    sinaNav.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"新浪视频" image:[UIImage imageNamed:@"message@2x.png"] selectedImage:[UIImage imageNamed:@"message_s@2x.png"]];
     
     
     
     NetEaseViewController *netEaseVC = [[NetEaseViewController alloc]init];
-    netEaseVC.title = @"网易";
+    netEaseVC.title = @"网易视频";
     BaseNavigationController *netEaseNav = [[BaseNavigationController alloc]initWithRootViewController:netEaseVC];
-    netEaseNav.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"网易" image:[UIImage imageNamed:@"share@2x.png"] selectedImage:[UIImage imageNamed:@"share_s@2x.png"]];
+    netEaseNav.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"网易视频" image:[UIImage imageNamed:@"share@2x.png"] selectedImage:[UIImage imageNamed:@"share_s@2x.png"]];
     
     
     PersonCenterViewController *pcenterVC = [[PersonCenterViewController alloc]init];
