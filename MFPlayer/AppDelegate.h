@@ -7,10 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MFRootTabBarController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
+@property (nonatomic,strong) UIWindow* window;
+@property (nonatomic,strong) MFRootTabBarController* tabBarController;
+@property (copy, nonatomic) NSArray *sidArray;
+@property (copy, nonatomic) NSArray *videoArray;
+
++ (AppDelegate*)shareAppDelegate;
 
 
 @end

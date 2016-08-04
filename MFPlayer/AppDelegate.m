@@ -16,18 +16,19 @@
 
 @implementation AppDelegate
 
+
++ (AppDelegate*)shareAppDelegate
+{
+    return (AppDelegate *) [UIApplication sharedApplication].delegate;
+}
+
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
+    self.tabBarController = [[MFRootTabBarController alloc]init];
+    self.window.rootViewController = self.tabBarController;
+    [self.window makeKeyAndVisible];
     return YES;
 }
 
