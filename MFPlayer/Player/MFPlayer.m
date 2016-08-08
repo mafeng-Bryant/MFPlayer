@@ -447,8 +447,7 @@
 
 - (void)pause
 {
-
-
+    [self playOrPauseAction:self.playOrPauseBtn];
 }
 
 - (double)playingTime

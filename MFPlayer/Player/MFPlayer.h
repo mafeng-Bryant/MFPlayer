@@ -46,7 +46,7 @@ typedef enum {
 //左上角按钮的样式
 @property (nonatomic,assign) MFPlayerCloseBtnStyle style;
 //定时器
-@property (nonatomic,strong) NSTimer* timer;
+@property (nonatomic,strong) NSTimer* autoDismissTimer;
 //是否全屏
 @property (nonatomic,assign) BOOL isFullScreen;
 //全屏的按钮

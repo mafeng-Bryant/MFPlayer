@@ -86,13 +86,13 @@
     [cell.playBtn addTarget:self action:@selector(startPlayVideo:) forControlEvents:UIControlEventTouchUpInside];
     cell.playBtn.tag = indexPath.row;
     if (_mfPlayer && _mfPlayer.superview) {
-        if (_currentIndexPath.row ==indexPath.row) {
+        if (_currentIndexPath.row == indexPath.row) {
             [cell.playBtn.superview sendSubviewToBack:cell.playBtn];
         }else {
             [cell.playBtn.superview bringSubviewToFront:cell.playBtn];
         }
         NSArray* visibleIndexPaths = [tableView indexPathsForVisibleRows];
-        if (![visibleIndexPaths containsObject:_currentIndexPath]) {
+        if (![visibleIndexPaths containsObject:_currentIndexPath] && _currentIndexPath !=nil) {
           if ([[UIApplication sharedApplication].keyWindow.subviews containsObject:_mfPlayer]) {
                 _mfPlayer.hidden = NO;
             }else{
@@ -100,11 +100,9 @@
             }
         }else {
             if ([cell.backgroundIV.subviews containsObject:_mfPlayer]) {
-                [cell.backgroundIV addSubview:_mfPlayer];
                 [_mfPlayer play];
                 _mfPlayer.hidden = NO;
             }
-         NSLog(@"contain");
       }
    }
     return cell;
@@ -121,10 +119,8 @@
 - (void)startPlayVideo:(UIButton*)btn
 {
     _currentIndexPath = [NSIndexPath indexPathForRow:btn.tag inSection:0];
-    NSLog(@"row = %ld",_currentIndexPath.row);
     self.currentCell = (VideoCell*)btn.superview.superview;
     VideoModel* videoModel = _dataArray[btn.tag];
-    
     if (_mfPlayer) {
         
     
@@ -137,8 +133,8 @@
     [self.currentCell.backgroundIV addSubview:_mfPlayer];
     [self.currentCell.backgroundIV bringSubviewToFront:_mfPlayer];
     [self.currentCell.playBtn.superview sendSubviewToBack:self.currentCell.playBtn];
-  //  [_tableView reloadData];
-
+    [_tableView reloadData];
+    
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -147,32 +143,37 @@
         if (_mfPlayer ==nil) {
             return;
         }
-        
         NSLog(@"height = %f",self.currentCell.backgroundIV.frame.size.height);
         NSLog(@"height = %f",kScreenHeight-kNavbarHeight-kTabBarHeight);
-        
         if (_mfPlayer.superview) {
             CGRect rectInTableView = [self.tableView rectForRowAtIndexPath:_currentIndexPath];
             CGRect rectInSuperView = [self.tableView convertRect:rectInTableView toView:self.tableView.superview];
-            
             NSLog(@"y = %f",rectInSuperView.origin.y);
-            
-            
-            
-            
-            
+            if (rectInSuperView.origin.y <-self.currentCell.backgroundIV.frame.size.height || rectInSuperView.origin.y > kScreenHeight - kNavbarHeight - kTabBarHeight) {
+                [self resertMFPlayer];
+                [self.currentCell.playBtn.superview bringSubviewToFront:self.currentCell.playBtn];
+            }
         }
-     
-        
-        
-        
     }
-    
-
 }
 
-
-
+//清除播放器
+- (void)resertMFPlayer
+{
+    [_mfPlayer.player.currentItem cancelPendingSeeks];
+    [_mfPlayer.player.currentItem.asset cancelLoading];
+    [_mfPlayer pause];
+    [_mfPlayer.player replaceCurrentItemWithPlayerItem:nil];
+    _mfPlayer.currentPlayerItem = nil;
+    [_mfPlayer.autoDismissTimer invalidate];
+    _mfPlayer.autoDismissTimer = nil;
+    _mfPlayer.playOrPauseBtn = nil;
+    _mfPlayer.player = nil;
+    [_mfPlayer.playerLayer removeFromSuperlayer];
+    _mfPlayer.playerLayer = nil;
+    [_mfPlayer removeFromSuperview];
+    _mfPlayer = nil;
+}
 
 -(BOOL)prefersStatusBarHidden
 {
@@ -185,6 +186,11 @@
     }else {
         return NO;
     }
+}
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self resertMFPlayer];
 }
 
 - (void)didReceiveMemoryWarning {
