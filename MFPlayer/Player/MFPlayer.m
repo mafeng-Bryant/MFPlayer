@@ -33,7 +33,7 @@
 @implementation MFPlayer
 {
     UISlider* _systemSlider;
-
+    UITapGestureRecognizer* _singleTap;
 }
 
 
@@ -240,33 +240,79 @@
     }];
     
     //titleLabel
-//    self.titleLabel = [[UILabel alloc]init];
-//    self.titleLabel.textAlignment = NSTextAlignmentCenter;
-//    self.titleLabel.textColor = [UIColor whiteColor];
-//    self.titleLabel.backgroundColor = [UIColor clearColor];
-//    self.titleLabel.font = [UIFont systemFontOfSize:17.0];
-//    [self.topView addSubview:self.titleLabel];
-//    //autoLayout titleLabel
-//    
-//    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.left.equalTo(self.topView).with.offset(45);
-//        make.right.equalTo(self.topView).with.offset(-45);
-//        make.center.equalTo(self.topView);
-//        make.top.equalTo(self.topView).with.offset(0);
-//        
-//    }];
+    self.titleLbl = [[UILabel alloc]init];
+    self.titleLbl.textAlignment = NSTextAlignmentCenter;
+    self.titleLbl.textColor = [UIColor whiteColor];
+    self.titleLbl.backgroundColor = [UIColor clearColor];
+    self.titleLbl.font = [UIFont systemFontOfSize:17.0];
+    [self.topView addSubview:self.titleLbl];
+    //autoLayout titleLabel
+    
+    [self.titleLbl mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.topView).with.offset(45);
+        make.right.equalTo(self.topView).with.offset(-45);
+        make.center.equalTo(self.topView);
+        make.top.equalTo(self.topView).with.offset(0);
+    }];
 
-
+    [self bringSubviewToFront:self.loadingView];
+    [self bringSubviewToFront:self.bottomView];
     
     
+    // 单击的 Recognizer
+    _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+    _singleTap.numberOfTapsRequired = 1; // 单击
+    _singleTap.numberOfTouchesRequired = 1;
+    [self addGestureRecognizer:_singleTap];
     
-    
-    
-    
+    [self addNotification];
     
 }
 
 #pragma mark Private methods
+
+- (void)addNotification
+{
+    //监听是否触发home键挂起程序.
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appwillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+    //监听是否重新进入程序程序.
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:)
+                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+#pragma mark NSNotification
+- (void)appwillResignActive:(NSNotification *)note
+{
+    NSLog(@"appwillResignActive");
+}
+- (void)appBecomeActive:(NSNotification *)note
+{
+    NSLog(@"appBecomeActive");
+}
+
+- (void)appDidEnterBackground:(NSNotification *)note
+{
+    NSLog(@"appDidEnterBackground");
+}
+- (void)appWillEnterForeground:(NSNotification *)note
+{
+    NSLog(@"appWillEnterForeground");
+}
+
+- (void)handleSingleTap:(UITapGestureRecognizer*)tap
+{
+
+
+    
+}
+
+- (void)colseTheVideo:(UIButton*)btn
+{
+ 
+
+}
 
 - (void)tapGesture:(UITapGestureRecognizer*)tap
 {
@@ -277,38 +323,38 @@
 - (void)fullScreenBtnAction:(UIButton*)btn
 {
 
-    
-    
- 
+
 }
 
 - (void)playOrPauseAction:(UIButton*)btn
 {
     
     
-    
-    
-
-
 }
 
 - (void)updateSystemVolumeValue:(UISlider*)slider
 {
   
-    
-    
-    
-    
-    
-    
 
 }
 
+- (void)startDragSlider:(UISlider*)slider
+{
+
+
+    
+}
+
+- (void)updateProgress:(UISlider*)slider
+{
+ 
+    
+    
+}
 
 #pragma Public methods
 - (void)play
 {
-
 
 }
 
