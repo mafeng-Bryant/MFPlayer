@@ -7,10 +7,10 @@
 //
 
 #import "AppDelegate.h"
+#import "MFPlayer.h"
+#import "DataManager.h"
 
 @interface AppDelegate ()
-
-
 
 @end
 
@@ -22,9 +22,23 @@
     return (AppDelegate *) [UIApplication sharedApplication].delegate;
 }
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
+    [[DataManager shareManager]getSidArrayWithUrl:@"http://c.m.163.com/nc/video/home/0-10.html"
+                                          success:^(NSArray *sidArray, NSArray *videosArray) {
+        self.sidArray = sidArray;
+        self.videoArray = videosArray;
+     } failed:^(NSError *error) {
+         NSLog(@"error = %@",error);
+    }];
+    
+    NSError *setCategoryErr = nil;
+    NSError *activationErr  = nil;
+    [[AVAudioSession sharedInstance]
+     setCategory: AVAudioSessionCategoryPlayback
+     error: &setCategoryErr];
+    [[AVAudioSession sharedInstance] setActive: YES error: &activationErr];
     
     self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
     self.tabBarController = [[MFRootTabBarController alloc]init];

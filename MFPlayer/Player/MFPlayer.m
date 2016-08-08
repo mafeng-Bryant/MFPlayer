@@ -70,6 +70,7 @@
     //topview
     self.topView = [[UIView alloc]init];
     self.topView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
+    [self addSubview:self.topView];
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self).with.offset(0);
         make.left.equalTo(self).with.offset(0);
@@ -80,6 +81,7 @@
     //bottomView
     self.bottomView = [[UIView alloc]init];
     self.bottomView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
+    [self addSubview:self.bottomView];
     [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self).with.offset(0);
         make.right.equalTo(self).with.offset(0);
@@ -328,8 +330,47 @@
 
 - (void)playOrPauseAction:(UIButton*)btn
 {
-    
-    
+    if (self.player.rate != 1.0f) {
+        if ([self currentPlayTime] == [self totalTime]) {
+            [self setCurrentTime:0.0];
+        }
+         btn.selected = NO;
+        [self.player play];
+    }else {
+        btn.selected = YES;
+        [self.player pause];
+    }
+}
+
+- (void)setCurrentTime:(double)time{
+     dispatch_async(dispatch_get_main_queue(), ^{
+         [self.player seekToTime:CMTimeMakeWithSeconds(time, self.currentPlayerItem.currentTime.timescale)];
+     });
+}
+
+//获取视频当前播放的时间
+- (double)currentPlayTime
+{
+    if (self.player) {
+        return CMTimeGetSeconds([self.player currentTime]);
+    }else {
+        return 0.0f;
+    }
+ }
+
+//获取视频的总时长
+- (double)totalTime
+{
+    if (self.player) {
+        AVPlayerItem* playerItem = self.player.currentItem;
+        if (playerItem.status == AVPlayerItemStatusReadyToPlay) {
+            return CMTimeGetSeconds([[playerItem asset] duration]);
+        }else {
+            return 0.0f;
+        }
+     }else {
+        return 0.0f;
+    }
 }
 
 - (void)updateSystemVolumeValue:(UISlider*)slider
@@ -352,10 +393,56 @@
     
 }
 
+- (void)PlayOrPause:(UIButton *)sender{
+    
+    
+    
+    
+
+
+}
+
+#pragma mark set and get method
+
+-(void)setUrlString:(NSString *)urlString
+{
+    _urlString = urlString;
+    //使用playerItem获取视频的信息，当前播放时间，总时间等
+    self.currentPlayerItem = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:urlString]];
+    self.player = [AVPlayer playerWithPlayerItem:self.currentPlayerItem];
+    self.player.usesExternalPlaybackWhileExternalScreenIsActive = YES;
+    self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+    self.playerLayer.frame = self.layer.bounds;
+    self.playerLayer.videoGravity = AVLayerVideoGravityResize;
+    [self.layer insertSublayer:self.playerLayer atIndex:0];
+    self.state = MFPlayerStateBuffering;
+    if (self.style == MFPlayerCloseBtnStylePop) {
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play_back.png")] forState:UIControlStateNormal];
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play_back.png")]  forState:UIControlStateSelected];
+    }else {
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateNormal];
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateSelected];
+    }
+}
+
+-(void)setState:(MFPlayerState)state
+{
+    _state = state;
+    if (state == MFPlayerStateBuffering) {
+        [self.loadingView startAnimating];
+    }else if (state ==MFPlayerStatePlaying){
+        [self.loadingView stopAnimating];
+    }else if (state == MFPlayerStateReadToPlay){
+        [self.loadingView stopAnimating];
+    }else {
+        [self.loadingView stopAnimating];
+    }
+}
+
 #pragma Public methods
 - (void)play
 {
-
+    [self playOrPauseAction:self.playOrPauseBtn];
 }
 
 - (void)pause
