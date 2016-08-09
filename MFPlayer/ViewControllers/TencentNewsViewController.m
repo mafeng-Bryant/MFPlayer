@@ -92,7 +92,7 @@
             [cell.playBtn.superview bringSubviewToFront:cell.playBtn];
         }
         NSArray* visibleIndexPaths = [tableView indexPathsForVisibleRows];
-        if (![visibleIndexPaths containsObject:_currentIndexPath] && _currentIndexPath !=nil) {
+        if (![visibleIndexPaths containsObject:_currentIndexPath] && _currentIndexPath != nil) {
           if ([[UIApplication sharedApplication].keyWindow.subviews containsObject:_mfPlayer]) {
                 _mfPlayer.hidden = NO;
             }else{
@@ -122,9 +122,11 @@
     self.currentCell = (VideoCell*)btn.superview.superview;
     VideoModel* videoModel = _dataArray[btn.tag];
     if (_mfPlayer) {
-        
-    
-   }else {
+        [self resertMFPlayer];
+        _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
+        _mfPlayer.style = MFPlayerCloseBtnStyleClose;
+        _mfPlayer.urlString = videoModel.mp4_url;
+    }else {
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
         _mfPlayer.style = MFPlayerCloseBtnStyleClose;
         _mfPlayer.titleLbl.text = videoModel.title;//标题
@@ -133,8 +135,8 @@
     [self.currentCell.backgroundIV addSubview:_mfPlayer];
     [self.currentCell.backgroundIV bringSubviewToFront:_mfPlayer];
     [self.currentCell.playBtn.superview sendSubviewToBack:self.currentCell.playBtn];
-    [_tableView reloadData];
-    
+//    [self.tableView reloadData];
+    [_mfPlayer play];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
