@@ -135,8 +135,7 @@
     [self.currentCell.backgroundIV addSubview:_mfPlayer];
     [self.currentCell.backgroundIV bringSubviewToFront:_mfPlayer];
     [self.currentCell.playBtn.superview sendSubviewToBack:self.currentCell.playBtn];
-//    [self.tableView reloadData];
-    [_mfPlayer play];
+     [_mfPlayer play];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -145,12 +144,9 @@
         if (_mfPlayer ==nil) {
             return;
         }
-        NSLog(@"height = %f",self.currentCell.backgroundIV.frame.size.height);
-        NSLog(@"height = %f",kScreenHeight-kNavbarHeight-kTabBarHeight);
         if (_mfPlayer.superview) {
             CGRect rectInTableView = [self.tableView rectForRowAtIndexPath:_currentIndexPath];
             CGRect rectInSuperView = [self.tableView convertRect:rectInTableView toView:self.tableView.superview];
-            NSLog(@"y = %f",rectInSuperView.origin.y);
             if (rectInSuperView.origin.y <-self.currentCell.backgroundIV.frame.size.height || rectInSuperView.origin.y > kScreenHeight - kNavbarHeight - kTabBarHeight) {
                 [self resertMFPlayer];
                 [self.currentCell.playBtn.superview bringSubviewToFront:self.currentCell.playBtn];

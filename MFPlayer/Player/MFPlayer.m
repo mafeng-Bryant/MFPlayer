@@ -14,6 +14,16 @@
 #define kHalfWidth        self.frame.size.width * 0.5
 #define kHalfHeight       self.frame.size.height * 0.5
 
+
+NSString* const kStatus                   = @"status";
+NSString* const kLoadtimeRangesKey        = @"loadedTimeRanges";
+NSString* const kPlaybackBufferEmpty      = @"playbackBufferEmpty";
+NSString* const kPlaybackLikelyToKeepUp   = @"playbackLikelyToKeepUp";
+
+static void *PlayViewCMTimeValue = &PlayViewCMTimeValue;
+
+static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackViewStatusObservationContext;
+
 @interface MFPlayer()<UIGestureRecognizerDelegate>
 {
 
@@ -423,6 +433,33 @@
         [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateNormal];
         [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateSelected];
     }
+}
+
+-(void)setCurrentPlayerItem:(AVPlayerItem *)currentPlayerItem
+{
+    if (_currentPlayerItem == currentPlayerItem) {
+        return;
+    }
+    
+    if (_currentPlayerItem) {
+       [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
+        [_currentPlayerItem removeObserver:self forKeyPath:kStatus];
+        [_currentPlayerItem removeObserver:self forKeyPath:kLoadtimeRangesKey];
+        [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackBufferEmpty];
+        [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackLikelyToKeepUp];
+        _currentPlayerItem = nil;
+    }
+    _currentPlayerItem = currentPlayerItem;
+    if (_currentPlayerItem) {
+         [_currentPlayerItem addObserver:self forKeyPath:kStatus options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        [_currentPlayerItem addObserver:self forKeyPath:kLoadtimeRangesKey options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        //缓冲区数据为空
+        [_currentPlayerItem addObserver:self forKeyPath:kPlaybackBufferEmpty options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        //缓冲区数据足够，可以播放了
+        [_currentPlayerItem addObserver:self forKeyPath:kPlaybackLikelyToKeepUp options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        [self.player replaceCurrentItemWithPlayerItem:_currentPlayerItem];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
+         }
 }
 
 -(void)setState:(MFPlayerState)state
