@@ -37,6 +37,8 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 @property (nonatomic,strong) UIProgressView* loadingProgress;
 @property (nonatomic,strong) UILabel*  leftTimeLabel;
 @property (nonatomic,strong) UILabel*  rightTimeLabel;
+//播放器的监听者
+@property (nonatomic,strong) id playObserve;
 @end
 
 
@@ -571,21 +573,57 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
   }
 }
 
+- (CMTime)playItemDuration
+{
+    AVPlayerItem* playItem = _currentPlayerItem;
+    if (playItem.status == AVPlayerItemStatusReadyToPlay) {
+        return [playItem duration];
+    }
+    return (kCMTimeInvalid);
+}
+
 - (void)initTimer
 {
+    double interval = 1.0;
+    CMTime time = [self playItemDuration];
+     if (CMTIME_IS_INVALID(time)) {
+        return ;
+    }
+    
+    double duration = CMTimeGetSeconds(time);
+    if (isfinite(duration)) {
+        CGFloat width = CGRectGetWidth([self.progressSlider bounds]);
+        interval = 0.5f * duration / width;
+    }
+    
+    __weak typeof(self) weakSelf = self;
+    self.playObserve = [weakSelf.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC) queue:NULL usingBlock:^(CMTime time) {
+        [weakSelf syncScrubber];
+     }];
+}
+
+
+- (void)syncScrubber
+{
+    CMTime playerDuration = [self playItemDuration];
+    if (CMTIME_IS_INVALID(playerDuration)) {
+        self.progressSlider.minimumValue = 0.0f;
+        return ;
+    }
+    double duration = CMTimeGetSeconds(playerDuration);
+    if (isfinite(duration)) {
+        float minValue = [self.progressSlider minimumValue];
+        float maxValue = [self.progressSlider maximumValue];
+        double nowTime = CMTimeGetSeconds([self.player currentTime]);
+        
+        
+        
+        
+    }
     
     
     
-    
-    
-    
-    
-    
-    
-    
- 
-    
-    
+
 }
 
 - (double)getMediaTotalTime
