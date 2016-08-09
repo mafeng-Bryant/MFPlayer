@@ -295,20 +295,29 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 }
 
 #pragma mark NSNotification
-- (void)appwillResignActive:(NSNotification *)note
+
+- (void)moviePlayDidEnd:(NSNotification*)noti
+{
+    NSLog(@"moviePlayDidEnd");
+    
+ 
+    
+}
+
+- (void)appwillResignActive:(NSNotification *)noti
 {
     NSLog(@"appwillResignActive");
 }
-- (void)appBecomeActive:(NSNotification *)note
+- (void)appBecomeActive:(NSNotification *)noti
 {
     NSLog(@"appBecomeActive");
 }
 
-- (void)appDidEnterBackground:(NSNotification *)note
+- (void)appDidEnterBackground:(NSNotification *)noti
 {
     NSLog(@"appDidEnterBackground");
 }
-- (void)appWillEnterForeground:(NSNotification *)note
+- (void)appWillEnterForeground:(NSNotification *)noti
 {
     NSLog(@"appWillEnterForeground");
 }
@@ -460,6 +469,148 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         [self.player replaceCurrentItemWithPlayerItem:_currentPlayerItem];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
          }
+}
+
+-(UILabel *)loadingFailedLbl
+{
+    if (!_loadingFailedLbl) {
+        _loadingFailedLbl = [[UILabel alloc]init];
+        _loadingFailedLbl.textColor = [UIColor whiteColor];
+        _loadingFailedLbl.textAlignment = NSTextAlignmentCenter;
+        _loadingFailedLbl.text = @"视频加载失败";
+        _loadingFailedLbl.hidden = YES;
+        [self addSubview:_loadingFailedLbl];
+        [_loadingFailedLbl mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.center.equalTo(self);
+            make.width.equalTo(self);
+            make.height.equalTo(@30);
+        }];
+    }
+    return _loadingFailedLbl;
+}
+
+#pragma mark KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == AVPlayerPlayBackViewStatusObservationContext) {
+        
+        if ([keyPath isEqualToString:kStatus]) {
+            AVPlayerStatus status = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];
+            
+            switch (status) {
+                {
+                 case AVPlayerStatusUnknown:
+                    [self.loadingProgress setProgress:0.0 animated:NO];
+                     self.state = MFPlayerStateBuffering;
+                    [self.loadingView startAnimating];
+                    break;
+              }
+                 case AVPlayerStatusReadyToPlay:
+                {
+                    self.state = MFPlayerStateReadToPlay;
+                    
+                    if (CMTimeGetSeconds(_currentPlayerItem.duration)) {
+                         double _x = CMTimeGetSeconds(_currentPlayerItem.duration);
+                        if (!isnan(_x)) {
+                            self.progressSlider.maximumValue = CMTimeGetSeconds(self.player.currentItem.duration);
+                        }
+                    }
+                    
+                    //监听播放器状态
+                    [self initTimer];
+                    
+                    if (!self.autoDismissTimer) {
+                        self.autoDismissTimer = [NSTimer timerWithTimeInterval:4.0 target:self selector:@selector(autoDismissBottomView:) userInfo:nil repeats:YES];
+                        [[NSRunLoop currentRunLoop] addTimer:self.autoDismissTimer forMode:NSDefaultRunLoopMode];
+                    }
+                    
+                    [self.loadingView stopAnimating];
+                    
+                    if (self.seekTime) {
+                        [self seekToTimePlay:self.seekTime];
+                    }
+                    
+                    break;
+            }
+                    
+                case AVPlayerStatusFailed:
+               {
+                   self.state = MFPlayerStateFailed;
+                    NSError *error = [self.player.currentItem error];
+                    if (error) {
+                        self.loadingFailedLbl.hidden = NO;
+                        [self bringSubviewToFront:self.loadingFailedLbl];
+                        [self.loadingView stopAnimating];
+                    }
+                     NSLog(@"error = %@",error.description);
+                break;
+              }
+                   default:
+                    break;
+            }
+        
+      }
+        
+    
+   }
+}
+
+//跳到xx秒播放视频
+
+- (void)seekToTimePlay:(double)time
+{
+    if (self.player && self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
+        if (time > [self getMediaTotalTime]) {
+            time = [self getMediaTotalTime];
+        }else if (time <0){
+            time = 0;
+        }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.player seekToTime:CMTimeMakeWithSeconds(time, self.currentPlayerItem.currentTime.timescale)];
+    });
+  }
+}
+
+- (void)initTimer
+{
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+ 
+    
+    
+}
+
+- (double)getMediaTotalTime
+{
+    AVPlayerItem* item = self.player.currentItem;
+    if (item.status == AVPlayerItemStatusReadyToPlay) {
+        return CMTimeGetSeconds([[item asset] duration]);
+    }
+    return 0.0f;
+}
+
+
+
+- (void)autoDismissBottomView:(NSTimer*)timer
+{
+    //播放状态
+    if (self.player.rate == 1.0f) {
+        if (self.bottomView.alpha == 1.0) {
+          [UIView animateWithDuration:0.25 animations:^{
+              self.bottomView.alpha = 0.0;
+              self.topView.alpha = 0.0;
+              self.closeBtn.alpha = 0.0;
+            }];
+        }
+    }
 }
 
 -(void)setState:(MFPlayerState)state
