@@ -37,6 +37,9 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 @property (nonatomic,strong) UIProgressView* loadingProgress;
 @property (nonatomic,strong) UILabel*  leftTimeLabel;
 @property (nonatomic,strong) UILabel*  rightTimeLabel;
+@property (nonatomic, strong)NSDateFormatter *dateFormatter;
+@property (nonatomic, assign) BOOL isDragingSlider;//是否点击了按钮的响应事件
+
 //播放器的监听者
 @property (nonatomic,strong) id playObserve;
 @end
@@ -70,6 +73,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 //初始化播放器类
 - (void)initMFPlayer
 {
+     _isDragingSlider = NO;
     self.seekTime = 0.0;
     self.backgroundColor = [UIColor blackColor];
     //loading
@@ -222,8 +226,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         make.bottom.equalTo(self.bottomView).with.offset(0);
     }];
     
-    
-    
     //rightTimeLabel
     self.rightTimeLabel = [[UILabel alloc]init];
     self.rightTimeLabel.textAlignment = NSTextAlignmentRight;
@@ -272,7 +274,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     [self bringSubviewToFront:self.loadingView];
     [self bringSubviewToFront:self.bottomView];
     
-    
     // 单击的 Recognizer
     _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
     _singleTap.numberOfTapsRequired = 1; // 单击
@@ -280,7 +281,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     [self addGestureRecognizer:_singleTap];
     
     [self addNotification];
-    
 }
 
 #pragma mark Private methods
@@ -451,7 +451,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     if (_currentPlayerItem == currentPlayerItem) {
         return;
     }
-    
     if (_currentPlayerItem) {
        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
         [_currentPlayerItem removeObserver:self forKeyPath:kStatus];
@@ -491,74 +490,94 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     return _loadingFailedLbl;
 }
 
+-(NSDateFormatter *)dateFormatter
+{
+    if (!_dateFormatter) {
+        _dateFormatter = [[NSDateFormatter alloc]init];
+    }
+    return _dateFormatter;
+}
+
 #pragma mark KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context == AVPlayerPlayBackViewStatusObservationContext) {
-        
         if ([keyPath isEqualToString:kStatus]) {
             AVPlayerStatus status = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];
-            
             switch (status) {
                 {
-                 case AVPlayerStatusUnknown:
+                case AVPlayerStatusUnknown:
                     [self.loadingProgress setProgress:0.0 animated:NO];
-                     self.state = MFPlayerStateBuffering;
+                    self.state = MFPlayerStateBuffering;
                     [self.loadingView startAnimating];
                     break;
-              }
-                 case AVPlayerStatusReadyToPlay:
+                }
+                case AVPlayerStatusReadyToPlay:
                 {
                     self.state = MFPlayerStateReadToPlay;
                     
                     if (CMTimeGetSeconds(_currentPlayerItem.duration)) {
-                         double _x = CMTimeGetSeconds(_currentPlayerItem.duration);
+                        double _x = CMTimeGetSeconds(_currentPlayerItem.duration);
                         if (!isnan(_x)) {
                             self.progressSlider.maximumValue = CMTimeGetSeconds(self.player.currentItem.duration);
                         }
                     }
-                    
+        
                     //监听播放器状态
                     [self initTimer];
-                    
                     if (!self.autoDismissTimer) {
-                        self.autoDismissTimer = [NSTimer timerWithTimeInterval:4.0 target:self selector:@selector(autoDismissBottomView:) userInfo:nil repeats:YES];
+                        self.autoDismissTimer = [NSTimer timerWithTimeInterval:100.0 target:self selector:@selector(autoDismissBottomView:) userInfo:nil repeats:YES];
                         [[NSRunLoop currentRunLoop] addTimer:self.autoDismissTimer forMode:NSDefaultRunLoopMode];
                     }
-                    
                     [self.loadingView stopAnimating];
-                    
                     if (self.seekTime) {
                         [self seekToTimePlay:self.seekTime];
                     }
-                    
                     break;
-            }
-                    
-                case AVPlayerStatusFailed:
-               {
-                   self.state = MFPlayerStateFailed;
+                }
+               case AVPlayerStatusFailed:
+                {
+                    self.state = MFPlayerStateFailed;
                     NSError *error = [self.player.currentItem error];
                     if (error) {
                         self.loadingFailedLbl.hidden = NO;
                         [self bringSubviewToFront:self.loadingFailedLbl];
                         [self.loadingView stopAnimating];
                     }
-                     NSLog(@"error = %@",error.description);
-                break;
-              }
-                   default:
+                    NSLog(@"error = %@",error.description);
+                    break;
+                }
+                default:
                     break;
             }
-        
-      }
-        
-    
-   }
+      }else if ([keyPath isEqualToString:kLoadtimeRangesKey]){
+            
+            
+             
+            
+            
+            
+            
+        }
+    }
 }
 
-//跳到xx秒播放视频
+//获取缓存总进度
 
+
+//- (NSTimeInterval)avaliableDuration
+//{
+//    NSArray* loadedTimeRanges = [_currentPlayerItem loadedTimeRanges];
+//    CMTimeRange
+//    
+//    
+//    
+//    return 0;
+//    
+//}
+
+
+//跳到xx秒播放视频
 - (void)seekToTimePlay:(double)time
 {
     if (self.player && self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
@@ -602,6 +621,17 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
      }];
 }
 
+- (NSString*)showTime:(CGFloat)time
+{
+    NSDate* date = [NSDate dateWithTimeIntervalSince1970:time];
+    if (time /3600 > 1) {
+        [[self dateFormatter] setDateFormat:@"HH:mm:ss"];
+    }else {
+        [[self dateFormatter] setDateFormat:@"mm:ss"];
+     }
+    NSString* nowTime = [[self dateFormatter] stringFromDate:date];
+    return nowTime;
+}
 
 - (void)syncScrubber
 {
@@ -615,15 +645,15 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         float minValue = [self.progressSlider minimumValue];
         float maxValue = [self.progressSlider maximumValue];
         double nowTime = CMTimeGetSeconds([self.player currentTime]);
-        
-        
-        
-        
+        double leftTime = duration - nowTime;
+        self.leftTimeLabel.text = [self showTime:nowTime];
+        self.rightTimeLabel.text = [self showTime:leftTime];
+        if (self.isDragingSlider) {
+            
+        }else {
+            [self.progressSlider setValue:(maxValue - minValue) * nowTime / duration + minValue];
+        }
     }
-    
-    
-    
-
 }
 
 - (double)getMediaTotalTime
@@ -634,8 +664,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     }
     return 0.0f;
 }
-
-
 
 - (void)autoDismissBottomView:(NSTimer*)timer
 {
