@@ -29,6 +29,19 @@ typedef enum {
  MFPlayerCloseBtnStyleClose = 1 //(X)
 }MFPlayerCloseBtnStyle;
 
+@class MFPlayer;
+
+@protocol MFPlayerDelegate <NSObject>
+
+@optional
+
+- (void)mfPlayer:(MFPlayer*)player closeBtn:(UIButton*)btn;
+
+- (void)mfPlayer:(MFPlayer *)player clickFullScreen:(UIButton*)btn;
+
+@end
+
+
 @interface MFPlayer : UIView
 
 //播放器类
@@ -65,6 +78,8 @@ typedef enum {
 @property (nonatomic,strong) NSString* urlString;
 //跳到播放的时间点
 @property (nonatomic,assign) double seekTime;
+
+@property (nonatomic,assign) id<MFPlayerDelegate> delegate;
 
 //播放
 - (void)play;

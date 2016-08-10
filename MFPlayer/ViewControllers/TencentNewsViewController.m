@@ -24,7 +24,7 @@
 #define kIOS7DELTA   ((kDeviceVersion>=7.0)? 20 :0 )
 #define kTabBarHeight 49
 
-@interface TencentNewsViewController ()<UITableViewDelegate,UITableViewDataSource>
+@interface TencentNewsViewController ()<UITableViewDelegate,UITableViewDataSource,MFPlayerDelegate>
 {
     NSMutableArray* _dataArray;
     MFPlayer* _mfPlayer;
@@ -125,10 +125,12 @@
         [self resertMFPlayer];
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
         _mfPlayer.style = MFPlayerCloseBtnStyleClose;
+        _mfPlayer.delegate = self;
         _mfPlayer.urlString = videoModel.mp4_url;
     }else {
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
         _mfPlayer.style = MFPlayerCloseBtnStyleClose;
+        _mfPlayer.delegate = self;
         _mfPlayer.titleLbl.text = videoModel.title;//标题
         _mfPlayer.urlString = videoModel.mp4_url;
     }
@@ -190,6 +192,40 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self resertMFPlayer];
 }
+
+#pragma MFPlayerDelegate
+
+- (void)mfPlayer:(MFPlayer*)player closeBtn:(UIButton*)btn;
+{
+    VideoCell* currentCell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
+    [currentCell.playBtn.superview bringSubviewToFront:currentCell.playBtn];
+    [self resertMFPlayer];
+}
+
+- (void)autoTransFormDirection:(UIInterfaceOrientation)orientation
+{
+
+
+    
+    
+}
+
+
+
+- (void)mfPlayer:(MFPlayer *)player clickFullScreen:(UIButton*)btn
+{
+    if (btn.isSelected) { //全屏显示
+        _mfPlayer.isFullScreen = YES;
+        [self autoTransFormDirection:UIInterfaceOrientationLandscapeRight];
+        
+     }else {
+        _mfPlayer.isFullScreen = NO;
+         
+    
+    }
+}
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
