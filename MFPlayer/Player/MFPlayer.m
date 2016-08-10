@@ -362,6 +362,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 - (void)fullScreenBtnAction:(UIButton*)btn
 {
+    btn.selected = !btn.selected;
     if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:clickFullScreen:)]) {
         [self.delegate mfPlayer:self clickFullScreen:btn];
     }

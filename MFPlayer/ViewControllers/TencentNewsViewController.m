@@ -53,6 +53,10 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    //添加屏幕旋转通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDeviceOrientationChange) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -204,28 +208,124 @@
 
 - (void)autoTransFormDirection:(UIInterfaceOrientation)orientation
 {
-
-
+    [_mfPlayer removeFromSuperview];
+    _mfPlayer.transform = CGAffineTransformIdentity;
+    if (orientation == UIInterfaceOrientationLandscapeLeft) {
+        _mfPlayer.transform = CGAffineTransformMakeRotation(-M_PI_2);
+     }else if (orientation == UIInterfaceOrientationLandscapeRight) {
+         _mfPlayer.transform = CGAffineTransformMakeRotation(M_PI_2);
+    }
+    _mfPlayer.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
+    _mfPlayer.playerLayer.frame = CGRectMake(0, 0, kScreenHeight, kScreenWidth);
     
+    // update Constraints bottomView
+    [_mfPlayer.bottomView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.height.mas_equalTo(40);
+        make.top.mas_equalTo(kScreenWidth-40);
+        make.width.mas_equalTo(kScreenHeight);
+    }];
     
+    //topView
+    [_mfPlayer.topView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.height.mas_equalTo(40);
+        make.top.mas_equalTo(0);
+        make.left.mas_equalTo(0);
+        make.width.mas_equalTo(kScreenHeight);
+    }];
+
+    //closebtn
+    [_mfPlayer.closeBtn mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.height.mas_equalTo(30);
+        make.width.mas_equalTo(30);
+        make.left.equalTo(_mfPlayer).with.offset(5);
+        make.top.equalTo(_mfPlayer).with.offset(5);
+    }];
+    
+    //title label
+    [_mfPlayer.titleLbl mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.center.equalTo(_mfPlayer.topView);
+    }];
+    
+    [_mfPlayer.loadingFailedLbl mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(kScreenHeight);
+        make.center.mas_equalTo(CGPointMake(kScreenWidth/2-36, -(kScreenWidth/2 -36)));
+        make.height.equalTo(@30);
+    }];
+
+     [_mfPlayer.loadingView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(CGPointMake(kScreenWidth/2-37, -(kScreenWidth/2-37)));
+     }];
+    
+  
+    [[UIApplication sharedApplication].keyWindow addSubview:_mfPlayer];
+    _mfPlayer.fullScreenBtn.selected = YES;
+    [_mfPlayer bringSubviewToFront:_mfPlayer.bottomView];
 }
-
-
 
 - (void)mfPlayer:(MFPlayer *)player clickFullScreen:(UIButton*)btn
 {
     if (btn.isSelected) { //全屏显示
         _mfPlayer.isFullScreen = YES;
-        [self autoTransFormDirection:UIInterfaceOrientationLandscapeRight];
-        
+        [self setNeedsStatusBarAppearanceUpdate];
+        [self autoTransFormDirection:UIInterfaceOrientationLandscapeLeft];
      }else {
         _mfPlayer.isFullScreen = NO;
-         
-    
+
     }
 }
 
 
+- (void)onDeviceOrientationChange
+{
+    if (_mfPlayer ==nil || _mfPlayer.superview ==nil) {
+        return;
+    }
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    NSLog(@"orientation = %ld",(long)orientation);
+    UIInterfaceOrientation direction = (UIInterfaceOrientation)orientation;
+    
+    switch (direction) {
+        case UIInterfaceOrientationLandscapeLeft:
+        {
+        
+            
+        
+            
+        
+        }
+            
+           break;
+        case UIInterfaceOrientationLandscapeRight:
+        {
+        
+        
+         
+            
+        }
+            
+           break;
+       case UIInterfaceOrientationPortraitUpsideDown:
+        {
+        
+          
+            
+        }
+        break;
+
+         case UIInterfaceOrientationPortrait:
+        {
+        
+        
+            
+        
+        }
+           break;
+            
+         default:
+            
+          break;
+    }
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
