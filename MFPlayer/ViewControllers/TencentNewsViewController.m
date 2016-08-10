@@ -36,6 +36,7 @@
 
 @implementation TencentNewsViewController
 
+#pragma mark cicle
 -(instancetype)init
 {
     self = [super init];
@@ -130,6 +131,7 @@
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
         _mfPlayer.style = MFPlayerCloseBtnStyleClose;
         _mfPlayer.delegate = self;
+        _mfPlayer.titleLbl.text = videoModel.title;//标题
         _mfPlayer.urlString = videoModel.mp4_url;
     }else {
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
@@ -141,24 +143,7 @@
     [self.currentCell.backgroundIV addSubview:_mfPlayer];
     [self.currentCell.backgroundIV bringSubviewToFront:_mfPlayer];
     [self.currentCell.playBtn.superview sendSubviewToBack:self.currentCell.playBtn];
-     [_mfPlayer play];
-}
-
--(void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    if (scrollView == self.tableView) {
-        if (_mfPlayer ==nil) {
-            return;
-        }
-        if (_mfPlayer.superview) {
-            CGRect rectInTableView = [self.tableView rectForRowAtIndexPath:_currentIndexPath];
-            CGRect rectInSuperView = [self.tableView convertRect:rectInTableView toView:self.tableView.superview];
-            if (rectInSuperView.origin.y <-self.currentCell.backgroundIV.frame.size.height || rectInSuperView.origin.y > kScreenHeight - kNavbarHeight - kTabBarHeight) {
-                [self resertMFPlayer];
-                [self.currentCell.playBtn.superview bringSubviewToFront:self.currentCell.playBtn];
-            }
-        }
-    }
+    [self.tableView reloadData];
 }
 
 //清除播放器
@@ -191,20 +176,6 @@
         return NO;
     }
 }
--(void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self resertMFPlayer];
-}
-
-#pragma MFPlayerDelegate
-
-- (void)mfPlayer:(MFPlayer*)player closeBtn:(UIButton*)btn;
-{
-    VideoCell* currentCell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
-    [currentCell.playBtn.superview bringSubviewToFront:currentCell.playBtn];
-    [self resertMFPlayer];
-}
 
 - (void)autoTransFormDirection:(UIInterfaceOrientation)orientation
 {
@@ -212,8 +183,8 @@
     _mfPlayer.transform = CGAffineTransformIdentity;
     if (orientation == UIInterfaceOrientationLandscapeLeft) {
         _mfPlayer.transform = CGAffineTransformMakeRotation(-M_PI_2);
-     }else if (orientation == UIInterfaceOrientationLandscapeRight) {
-         _mfPlayer.transform = CGAffineTransformMakeRotation(M_PI_2);
+    }else if (orientation == UIInterfaceOrientationLandscapeRight) {
+        _mfPlayer.transform = CGAffineTransformMakeRotation(M_PI_2);
     }
     _mfPlayer.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
     _mfPlayer.playerLayer.frame = CGRectMake(0, 0, kScreenHeight, kScreenWidth);
@@ -232,7 +203,7 @@
         make.left.mas_equalTo(0);
         make.width.mas_equalTo(kScreenHeight);
     }];
-
+    
     //closebtn
     [_mfPlayer.closeBtn mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.height.mas_equalTo(30);
@@ -251,15 +222,89 @@
         make.center.mas_equalTo(CGPointMake(kScreenWidth/2-36, -(kScreenWidth/2 -36)));
         make.height.equalTo(@30);
     }];
-
-     [_mfPlayer.loadingView mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.center.mas_equalTo(CGPointMake(kScreenWidth/2-37, -(kScreenWidth/2-37)));
-     }];
     
-  
+    [_mfPlayer.loadingView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        make.center.mas_equalTo(CGPointMake(kScreenWidth/2-37, -(kScreenWidth/2-37)));
+    }];
+    
+    
     [[UIApplication sharedApplication].keyWindow addSubview:_mfPlayer];
     _mfPlayer.fullScreenBtn.selected = YES;
     [_mfPlayer bringSubviewToFront:_mfPlayer.bottomView];
+}
+
+- (void)toCell
+{
+    VideoCell* cell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
+    [_mfPlayer removeFromSuperview];
+    [UIView animateWithDuration:0.25 animations:^{
+        _mfPlayer.transform = CGAffineTransformIdentity;
+        _mfPlayer.frame = cell.backgroundIV.bounds;
+        _mfPlayer.playerLayer.frame = _mfPlayer.bounds;
+        [cell.backgroundIV addSubview:_mfPlayer];
+        [cell.backgroundIV bringSubviewToFront:_mfPlayer];
+     [_mfPlayer.topView mas_remakeConstraints:^(MASConstraintMaker *make) {
+         make.left.equalTo(_mfPlayer).with.offset(0);
+         make.right.equalTo(_mfPlayer).with.offset(0);
+         make.height.mas_equalTo(40);
+         make.top.equalTo(_mfPlayer).with.offset(0);
+     }];
+      [_mfPlayer.bottomView mas_remakeConstraints:^(MASConstraintMaker *make) {
+         make.left.equalTo(_mfPlayer).with.offset(0);
+         make.right.equalTo(_mfPlayer).with.offset(0);
+         make.height.mas_equalTo(40);
+         make.bottom.equalTo(_mfPlayer).with.offset(0);
+     }];
+     [_mfPlayer.titleLbl mas_remakeConstraints:^(MASConstraintMaker *make) {
+          make.left.equalTo(_mfPlayer.topView).with.offset(45);
+          make.right.equalTo(_mfPlayer.topView).with.offset(-45);
+          make.center.equalTo(_mfPlayer.topView);
+          make.top.equalTo(_mfPlayer.topView).with.offset(0);
+      }];
+      [_mfPlayer.closeBtn mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(_mfPlayer).with.offset(5);
+            make.height.mas_equalTo(30);
+            make.width.mas_equalTo(30);
+            make.top.equalTo(_mfPlayer).with.offset(5);
+        }];
+        [_mfPlayer.loadingFailedLbl mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.center.equalTo(_mfPlayer);
+            make.width.equalTo(_mfPlayer);
+            make.height.equalTo(@30);
+        }];
+       } completion:^(BOOL finished) {
+         _mfPlayer.isFullScreen = NO;
+         [self setNeedsStatusBarAppearanceUpdate];
+         _mfPlayer.fullScreenBtn.selected = NO;
+    }];
+}
+
+#pragma mark UIScrollViewDelegate
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (scrollView == self.tableView) {
+        if (_mfPlayer ==nil) {
+            return;
+        }
+        if (_mfPlayer.superview) {
+            CGRect rectInTableView = [self.tableView rectForRowAtIndexPath:_currentIndexPath];
+            CGRect rectInSuperView = [self.tableView convertRect:rectInTableView toView:self.tableView.superview];
+            if (rectInSuperView.origin.y <-self.currentCell.backgroundIV.frame.size.height || rectInSuperView.origin.y > kScreenHeight - kNavbarHeight - kTabBarHeight) {
+                [self resertMFPlayer];
+                [self.currentCell.playBtn.superview bringSubviewToFront:self.currentCell.playBtn];
+            }
+        }
+    }
+}
+
+#pragma MFPlayerDelegate
+
+- (void)mfPlayer:(MFPlayer*)player closeBtn:(UIButton*)btn;
+{
+    VideoCell* currentCell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
+    [currentCell.playBtn.superview bringSubviewToFront:currentCell.playBtn];
+    [self resertMFPlayer];
 }
 
 - (void)mfPlayer:(MFPlayer *)player clickFullScreen:(UIButton*)btn
@@ -269,62 +314,63 @@
         [self setNeedsStatusBarAppearanceUpdate];
         [self autoTransFormDirection:UIInterfaceOrientationLandscapeLeft];
      }else {
-        _mfPlayer.isFullScreen = NO;
-
+         [self toCell];
     }
 }
 
+- (void)mfPlayer:(MFPlayer *)player playFinished:(id)finish
+{
+    VideoCell* currentCell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
+    [currentCell.playBtn.superview bringSubviewToFront:currentCell.playBtn];
+    [self resertMFPlayer];
+    [self setNeedsStatusBarAppearanceUpdate];
+}
 
+#pragma mark notification
 - (void)onDeviceOrientationChange
 {
     if (_mfPlayer ==nil || _mfPlayer.superview ==nil) {
         return;
     }
     UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
-    NSLog(@"orientation = %ld",(long)orientation);
     UIInterfaceOrientation direction = (UIInterfaceOrientation)orientation;
-    
+    //handle direction
     switch (direction) {
         case UIInterfaceOrientationLandscapeLeft:
         {
-        
-            
-        
-            
-        
+            _mfPlayer.isFullScreen = YES;
+            [self setNeedsStatusBarAppearanceUpdate];
+            [self autoTransFormDirection:direction];
         }
-            
-           break;
+          break;
         case UIInterfaceOrientationLandscapeRight:
         {
-        
-        
-         
-            
+            _mfPlayer.isFullScreen = YES;
+            [self setNeedsStatusBarAppearanceUpdate];
+            [self autoTransFormDirection:direction];
         }
-            
            break;
        case UIInterfaceOrientationPortraitUpsideDown:
         {
-        
-          
-            
+            NSLog(@"状态栏向下");
         }
         break;
-
-         case UIInterfaceOrientationPortrait:
+      case UIInterfaceOrientationPortrait:
         {
-        
-        
-            
-        
+            if (_mfPlayer.isFullScreen) {
+                [self toCell];
+            }
         }
            break;
-            
          default:
-            
-          break;
+           break;
     }
+}
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self resertMFPlayer];
 }
 
 - (void)didReceiveMemoryWarning {

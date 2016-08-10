@@ -170,12 +170,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     self.progressSlider.value = 0.0;
     //进度条拖曳事件
     [self.progressSlider addTarget:self action:@selector(startDragSlider:) forControlEvents:UIControlEventValueChanged];
-    //进度条的点击事件
-    [self.progressSlider addTarget:self action:@selector(updateProgress:) forControlEvents:UIControlEventTouchUpInside];
-     //给进度条添加单击手势
-    self.tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapGesture:)];
-    self.tap.delegate = self;
-    [self.progressSlider addGestureRecognizer:self.tap];
     [self.bottomView addSubview:self.progressSlider];
      self.progressSlider.backgroundColor = [UIColor clearColor];
 
@@ -304,7 +298,18 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 - (void)moviePlayDidEnd:(NSNotification*)noti
 {
-    NSLog(@"moviePlayDidEnd");
+    self.state = MFPlayerStateFinished;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:playFinished:)]) {
+        [self.delegate mfPlayer:self playFinished:noti];
+    }
+    [self.player seekToTime:kCMTimeZero completionHandler:^(BOOL finished) {
+        [self.progressSlider setValue:0.0 animated:YES];
+        self.playOrPauseBtn.selected = YES;
+    }];
+    [UIView animateWithDuration:0.5 animations:^{
+        self.bottomView.alpha = 1.0;
+        self.topView.alpha = 1.0;
+    }];
 }
 
 - (void)appwillResignActive:(NSNotification *)noti
@@ -351,13 +356,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:closeBtn:)]) {
         [self.delegate mfPlayer:self closeBtn:btn];
     }
-}
-
-- (void)tapGesture:(UITapGestureRecognizer*)tap
-{
-   
-   
-    
 }
 
 - (void)fullScreenBtnAction:(UIButton*)btn
@@ -421,25 +419,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 - (void)startDragSlider:(UISlider*)slider
 {
-
-
-    
-}
-
-- (void)updateProgress:(UISlider*)slider
-{
- 
-    
-    
-}
-
-- (void)PlayOrPause:(UIButton *)sender{
-    
-    
-    
-    
-
-
+    self.isDragingSlider = YES;
 }
 
 #pragma mark set and get method
@@ -683,9 +663,8 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         float minValue = [self.progressSlider minimumValue];
         float maxValue = [self.progressSlider maximumValue];
         double nowTime = CMTimeGetSeconds([self.player currentTime]);
-        double leftTime = duration - nowTime;
         self.leftTimeLabel.text = [self showTime:nowTime];
-        self.rightTimeLabel.text = [self showTime:leftTime];
+        self.rightTimeLabel.text = [self showTime:duration];
         if (self.isDragingSlider) {
             
         }else {
@@ -745,7 +724,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 - (double)playingTime
 {
     return 0.2;
-
 }
 
 - (void)resetMFPlayer
@@ -763,6 +741,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 -(void)dealloc
 {
+    NSLog(@"MFPlayer dealloc");
     [self resetMFPlayer];
 }
 

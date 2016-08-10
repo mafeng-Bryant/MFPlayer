@@ -39,6 +39,9 @@ typedef enum {
 
 - (void)mfPlayer:(MFPlayer *)player clickFullScreen:(UIButton*)btn;
 
+- (void)mfPlayer:(MFPlayer *)player playFinished:(id)finish;
+
+
 @end
 
 
