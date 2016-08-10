@@ -414,6 +414,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 - (void)updateSystemVolumeValue:(UISlider*)slider
 {
   
+    
 
 }
 
