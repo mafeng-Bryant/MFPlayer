@@ -307,12 +307,14 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 //开始拖曳进度条
 - (void)startDragSlider:(UISlider*)slider
 {
+    self.bottomView.hidden = self.topView.hidden = NO;
     [self updateCurrentTime:slider.value];
 }
 
 //进度条改变响应
 - (void)startChangeSlider:(UISlider*)slider
 {
+    self.bottomView.hidden = self.topView.hidden = NO;
     [self seekToTime:slider.value];
     [self updateCurrentTime:slider.value];
 }
@@ -509,7 +511,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
                 case AVPlayerStatusReadyToPlay:
                 {
                     self.state = MFPlayerStateReadToPlay;
-                    
                     if (CMTimeGetSeconds(_currentPlayerItem.duration)) {
                         double _x = CMTimeGetSeconds(_currentPlayerItem.duration);
                         if (!isnan(_x)) {

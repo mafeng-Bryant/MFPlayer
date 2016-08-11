@@ -30,6 +30,7 @@
     MFPlayer* _mfPlayer;
     NSIndexPath* _currentIndexPath;
 }
+
 @property(nonatomic,retain)VideoCell *currentCell;
 
 @end
@@ -54,10 +55,8 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
-    //添加屏幕旋转通知
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDeviceOrientationChange) name:UIDeviceOrientationDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDeviceOrientationChangeNotification:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -85,7 +84,7 @@
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-   static NSString* identify = @"VideoCell";
+    static NSString* identify = @"VideoCell";
     VideoCell* cell = (VideoCell*)[tableView dequeueReusableCellWithIdentifier:identify];
     cell.model = _dataArray[indexPath.row];
     [cell.playBtn addTarget:self action:@selector(startPlayVideo:) forControlEvents:UIControlEventTouchUpInside];
@@ -98,29 +97,20 @@
         }
         NSArray* visibleIndexPaths = [tableView indexPathsForVisibleRows];
         if (![visibleIndexPaths containsObject:_currentIndexPath] && _currentIndexPath != nil) {
-          if ([[UIApplication sharedApplication].keyWindow.subviews containsObject:_mfPlayer]) {
-                _mfPlayer.hidden = NO;
-            }else{
-                _mfPlayer.hidden = YES;
-            }
+             _mfPlayer.hidden = YES;
         }else {
             if ([cell.backgroundIV.subviews containsObject:_mfPlayer]) {
                 [_mfPlayer play];
                 _mfPlayer.hidden = NO;
             }
-      }
-   }
+        }
+    }
     return cell;
 }
 
-#pragma mark Private method
+#pragma mark Event Response
 
-- (void)loadData
-{
-    [_dataArray addObjectsFromArray:[AppDelegate shareAppDelegate].videoArray];
-    [self.tableView reloadData];
-}
-
+//开始播放视频
 - (void)startPlayVideo:(UIButton*)btn
 {
     _currentIndexPath = [NSIndexPath indexPathForRow:btn.tag inSection:0];
@@ -139,7 +129,7 @@
             _mfPlayer.delegate = self;
             _mfPlayer.titleLbl.text = videoModel.title;//标题
             _mfPlayer.urlString = videoModel.mp4_url;
-       }
+        }
     }else {
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
         _mfPlayer.style = MFPlayerCloseBtnStyleClose;
@@ -153,7 +143,16 @@
     [self.tableView reloadData];
 }
 
-//清除播放器
+#pragma mark Private method
+
+//加载视频数据
+- (void)loadData
+{
+    [_dataArray addObjectsFromArray:[AppDelegate shareAppDelegate].videoArray];
+    [self.tableView reloadData];
+}
+
+//重置播放器
 - (void)resertMFPlayer
 {
     [_mfPlayer.player.currentItem cancelPendingSeeks];
@@ -184,6 +183,7 @@
     }
 }
 
+//旋转屏幕
 - (void)autoTransFormDirection:(UIInterfaceOrientation)orientation
 {
     [_mfPlayer removeFromSuperview];
@@ -195,14 +195,12 @@
     }
     _mfPlayer.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
     _mfPlayer.playerLayer.frame = CGRectMake(0, 0, kScreenHeight, kScreenWidth);
-    
     // update Constraints bottomView
     [_mfPlayer.bottomView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.height.mas_equalTo(40);
         make.top.mas_equalTo(kScreenWidth-40);
         make.width.mas_equalTo(kScreenHeight);
     }];
-    
     //topView
     [_mfPlayer.topView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.height.mas_equalTo(40);
@@ -210,7 +208,6 @@
         make.left.mas_equalTo(0);
         make.width.mas_equalTo(kScreenHeight);
     }];
-    
     //closebtn
     [_mfPlayer.closeBtn mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.height.mas_equalTo(30);
@@ -218,28 +215,24 @@
         make.left.equalTo(_mfPlayer).with.offset(5);
         make.top.equalTo(_mfPlayer).with.offset(5);
     }];
-    
     //title label
     [_mfPlayer.titleLbl mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(_mfPlayer.topView);
     }];
-    
     [_mfPlayer.loadingFailedLbl mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.width.mas_equalTo(kScreenHeight);
         make.center.mas_equalTo(CGPointMake(kScreenWidth/2-36, -(kScreenWidth/2 -36)));
         make.height.equalTo(@30);
     }];
-    
     [_mfPlayer.loadingView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.center.mas_equalTo(CGPointMake(kScreenWidth/2-37, -(kScreenWidth/2-37)));
     }];
-    
-    
     [[UIApplication sharedApplication].keyWindow addSubview:_mfPlayer];
     _mfPlayer.fullScreenBtn.selected = YES;
     [_mfPlayer bringSubviewToFront:_mfPlayer.bottomView];
 }
 
+//从全屏回到小屏幕
 - (void)toCell
 {
     VideoCell* cell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
@@ -350,15 +343,14 @@
     }
 }
 
-#pragma mark notification
-- (void)onDeviceOrientationChange
+#pragma mark notification method
+- (void)onDeviceOrientationChangeNotification:(NSNotification*)notification
 {
     if (_mfPlayer ==nil || _mfPlayer.superview ==nil) {
         return;
     }
     UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
     UIInterfaceOrientation direction = (UIInterfaceOrientation)orientation;
-    //handle direction
     switch (direction) {
         case UIInterfaceOrientationLandscapeLeft:
         {
@@ -374,12 +366,7 @@
             [self autoTransFormDirection:direction];
         }
            break;
-       case UIInterfaceOrientationPortraitUpsideDown:
-        {
-            NSLog(@"状态栏向下");
-        }
-        break;
-      case UIInterfaceOrientationPortrait:
+       case UIInterfaceOrientationPortrait:
         {
             if (_mfPlayer.isFullScreen) {
                 [self toCell];
