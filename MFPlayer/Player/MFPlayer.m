@@ -29,7 +29,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
  
     
 }
-@property (nonatomic,strong) UISlider* lightSlider; //亮度的进度条，和屏幕的亮度一样
+@property (nonatomic,strong) UISlider* lightSlider;
 @property (nonatomic,strong) UISlider* volumeSlider;
 @property (nonatomic,strong) MPVolumeView* volumeView;
 @property (nonatomic,strong) UISlider* progressSlider;
@@ -40,7 +40,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 @property (nonatomic,strong) NSDateFormatter *dateFormatter;
 @property (nonatomic,strong) UISlider* systemSlider;
 @property (nonatomic,strong) UITapGestureRecognizer* singleTap;
-@property (nonatomic,strong) id playObserve; //播放器的监听者
+@property (nonatomic,strong) id playObserve;
 
 @end
 
@@ -101,6 +101,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     [self.topView addSubview:self.closeBtn];
     //titleLabel
     [self.topView addSubview:self.titleLbl];
+    [self addSubview:self.loadingFailedLbl];
     [self bringSubviewToFront:self.loadingView];
     [self bringSubviewToFront:self.bottomView];
     [self addGestureRecognizer:self.singleTap];
@@ -171,6 +172,11 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         make.right.equalTo(self.topView).with.offset(-45);
         make.center.equalTo(self.topView);
         make.top.equalTo(self.topView).with.offset(0);
+    }];
+    [self.loadingFailedLbl mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.equalTo(self);
+        make.width.equalTo(self);
+        make.height.equalTo(@30);
     }];
 }
 
@@ -319,7 +325,139 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     
 }
 
+//缓冲调用方法
+- (void)loadTimeRanges
+{
+    self.state = MFPlayerStateBuffering;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self play];
+        [self.loadingView stopAnimating];
+    });
+}
 
+//获取缓存的进度
+- (NSTimeInterval)avaliableDuration
+{
+    NSArray* loadedTimeRanges = [_currentPlayerItem loadedTimeRanges];
+    CMTimeRange timeRange = [loadedTimeRanges.firstObject CMTimeRangeValue];//本次缓冲时间范围
+    float startSeconds = CMTimeGetSeconds(timeRange.start);
+    float durationSeconds = CMTimeGetSeconds(timeRange.duration);
+    NSTimeInterval totalBuffer = startSeconds + durationSeconds;
+    return totalBuffer;
+}
+
+//跳到某一时间播放视频
+- (void)seekToTimePlay:(double)time
+{
+    if (self.player && self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
+        if (time > [self getMediaTotalTime]) {
+            time = [self getMediaTotalTime];
+        }else if (time <0){
+            time = 0;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.player seekToTime:CMTimeMakeWithSeconds(time, self.currentPlayerItem.currentTime.timescale)];
+        });
+    }
+}
+
+//获取当前播放资源的总时间
+- (CMTime)playItemDuration
+{
+    AVPlayerItem* playItem = _currentPlayerItem;
+    if (playItem.status == AVPlayerItemStatusReadyToPlay) {
+        return [playItem duration];
+    }
+    return (kCMTimeInvalid);
+}
+
+//显示播放的时间
+- (NSString*)showTime:(CGFloat)time
+{
+    NSDate* date = [NSDate dateWithTimeIntervalSince1970:time];
+    if (time /3600 > 1) {
+        [[self dateFormatter] setDateFormat:@"HH:mm:ss"];
+    }else {
+        [[self dateFormatter] setDateFormat:@"mm:ss"];
+    }
+    NSString* nowTime = [[self dateFormatter] stringFromDate:date];
+    return nowTime;
+}
+
+//监听播放器的播放状态，每隔一秒会调用
+- (void)observePlayer
+{
+    double interval = 1.0;
+    CMTime time = [self playItemDuration];
+    if (CMTIME_IS_INVALID(time)) {
+        return ;
+    }
+    double duration = CMTimeGetSeconds(time);
+    if (isfinite(duration)) {
+        CGFloat width = CGRectGetWidth([self.progressSlider bounds]);
+        interval = 0.5f * duration / width;
+    }
+    __weak typeof(self) weakSelf = self;
+    self.playObserve = [weakSelf.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC) queue:NULL usingBlock:^(CMTime time) {
+        [weakSelf syncScrubber];
+    }];
+}
+
+//不断更新进度条以及时间的变化
+- (void)syncScrubber
+{
+    CMTime playerDuration = [self playItemDuration];
+    if (CMTIME_IS_INVALID(playerDuration)) {
+        self.progressSlider.minimumValue = 0.0f;
+        return ;
+    }
+    double duration = CMTimeGetSeconds(playerDuration);
+    if (isfinite(duration)) {
+        float minValue = [self.progressSlider minimumValue];
+        float maxValue = [self.progressSlider maximumValue];
+        double nowTime = CMTimeGetSeconds([self.player currentTime]);
+        self.leftTimeLabel.text = [self showTime:nowTime];
+        self.rightTimeLabel.text = [self showTime:duration];
+        [self.progressSlider setValue:(maxValue - minValue) * nowTime / duration + minValue];
+    }
+}
+
+//获取当前播放视频的总时间
+- (double)getMediaTotalTime
+{
+    AVPlayerItem* item = self.player.currentItem;
+    if (item.status == AVPlayerItemStatusReadyToPlay) {
+        return CMTimeGetSeconds([[item asset] duration]);
+    }
+    return 0.0f;
+}
+
+//隐藏视频头部和底部的视图
+- (void)autoDismissBottomView:(NSTimer*)timer
+{
+    if (self.player.rate == 1.0f) {
+        if (self.bottomView.alpha == 1.0) {
+            [UIView animateWithDuration:0.25 animations:^{
+                self.bottomView.alpha = 0.0;
+                self.topView.alpha = 0.0;
+                self.closeBtn.alpha = 0.0;
+            }];
+        }
+    }
+}
+
+//重置播放器
+- (void)resetMFPlayer
+{
+    self.seekTime = 0.0f;
+    self.currentPlayerItem = nil;
+    [self.autoDismissTimer invalidate];
+    self.autoDismissTimer = nil;
+    [self.player pause];
+    [self.playerLayer removeFromSuperlayer];
+    [self.player replaceCurrentItemWithPlayerItem:nil];
+    self.player = nil;
+}
 
 #pragma mark NSNotification method
 
@@ -359,88 +497,8 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     NSLog(@"appWillEnterForeground");
 }
 
-
-
-
-
-
-
-#pragma mark set and get method
-
--(void)setUrlString:(NSString *)urlString
-{
-    _urlString = urlString;
-    //使用playerItem获取视频的信息，当前播放时间，总时间等
-    self.currentPlayerItem = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:urlString]];
-    self.player = [AVPlayer playerWithPlayerItem:self.currentPlayerItem];
-    self.player.usesExternalPlaybackWhileExternalScreenIsActive = YES;
-    self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-    self.playerLayer.frame = self.layer.bounds;
-    self.playerLayer.videoGravity = AVLayerVideoGravityResize;
-    [self.layer insertSublayer:self.playerLayer atIndex:0];
-    self.state = MFPlayerStateBuffering;
-    if (self.style == MFPlayerCloseBtnStylePop) {
-        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play_back.png")] forState:UIControlStateNormal];
-        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play_back.png")]  forState:UIControlStateSelected];
-    }else {
-        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateNormal];
-        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateSelected];
-    }
-}
-
--(void)setCurrentPlayerItem:(AVPlayerItem *)currentPlayerItem
-{
-    if (_currentPlayerItem == currentPlayerItem) {
-        return;
-    }
-    if (_currentPlayerItem) {
-       [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
-        [_currentPlayerItem removeObserver:self forKeyPath:kStatus];
-        [_currentPlayerItem removeObserver:self forKeyPath:kLoadtimeRangesKey];
-        [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackBufferEmpty];
-        [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackLikelyToKeepUp];
-        _currentPlayerItem = nil;
-    }
-    _currentPlayerItem = currentPlayerItem;
-    if (_currentPlayerItem) {
-         [_currentPlayerItem addObserver:self forKeyPath:kStatus options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
-        [_currentPlayerItem addObserver:self forKeyPath:kLoadtimeRangesKey options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
-        //缓冲区数据为空
-        [_currentPlayerItem addObserver:self forKeyPath:kPlaybackBufferEmpty options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
-        //缓冲区数据足够，可以播放了
-        [_currentPlayerItem addObserver:self forKeyPath:kPlaybackLikelyToKeepUp options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
-        [self.player replaceCurrentItemWithPlayerItem:_currentPlayerItem];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
-         }
-}
-
--(UILabel *)loadingFailedLbl
-{
-    if (!_loadingFailedLbl) {
-        _loadingFailedLbl = [[UILabel alloc]init];
-        _loadingFailedLbl.textColor = [UIColor whiteColor];
-        _loadingFailedLbl.textAlignment = NSTextAlignmentCenter;
-        _loadingFailedLbl.text = @"视频加载失败";
-        _loadingFailedLbl.hidden = YES;
-        [self addSubview:_loadingFailedLbl];
-        [_loadingFailedLbl mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.center.equalTo(self);
-            make.width.equalTo(self);
-            make.height.equalTo(@30);
-        }];
-    }
-    return _loadingFailedLbl;
-}
-
--(NSDateFormatter *)dateFormatter
-{
-    if (!_dateFormatter) {
-        _dateFormatter = [[NSDateFormatter alloc]init];
-    }
-    return _dateFormatter;
-}
-
 #pragma mark KVO
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context == AVPlayerPlayBackViewStatusObservationContext) {
@@ -464,9 +522,8 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
                             self.progressSlider.maximumValue = CMTimeGetSeconds(self.player.currentItem.duration);
                         }
                     }
-        
                     //监听播放器状态
-                    [self initTimer];
+                    [self observePlayer];
                     if (!self.autoDismissTimer) {
                         self.autoDismissTimer = [NSTimer timerWithTimeInterval:5.0 target:self selector:@selector(autoDismissBottomView:) userInfo:nil repeats:YES];
                         [[NSRunLoop currentRunLoop] addTimer:self.autoDismissTimer forMode:NSDefaultRunLoopMode];
@@ -477,7 +534,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
                     }
                     break;
                 }
-               case AVPlayerStatusFailed:
+                case AVPlayerStatusFailed:
                 {
                     self.state = MFPlayerStateFailed;
                     NSError *error = [self.player.currentItem error];
@@ -486,171 +543,38 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
                         [self bringSubviewToFront:self.loadingFailedLbl];
                         [self.loadingView stopAnimating];
                     }
-                    NSLog(@"error = %@",error.description);
                     break;
                 }
                 default:
                     break;
             }
-      }else if ([keyPath isEqualToString:kLoadtimeRangesKey]){
-          
+        }else if ([keyPath isEqualToString:kLoadtimeRangesKey]){
+            
             //计算缓冲进度
-          NSTimeInterval timeInval = [self avaliableDuration];
-          CMTime duration = self.currentPlayerItem.duration;
-          CGFloat totalDuration = CMTimeGetSeconds(duration);
-          //缓冲颜色设置
-          self.loadingProgress.progressTintColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.7];
-          [self.loadingProgress setProgress:(timeInval/totalDuration) animated:NO];
-          
+            NSTimeInterval timeInval = [self avaliableDuration];
+            CMTime duration = self.currentPlayerItem.duration;
+            CGFloat totalDuration = CMTimeGetSeconds(duration);
+            //缓冲颜色设置
+            self.loadingProgress.progressTintColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.7];
+            [self.loadingProgress setProgress:(timeInval/totalDuration) animated:NO];
+            
         }else if ([keyPath isEqualToString:kPlaybackBufferEmpty]){
-             [self.loadingView startAnimating];
+            [self.loadingView startAnimating];
             if (self.currentPlayerItem.playbackBufferEmpty) {
                 self.state = MFPlayerStateBuffering;
                 [self loadTimeRanges];
             }
         }else if ([keyPath isEqualToString:kPlaybackLikelyToKeepUp]){
-             [self.loadingView stopAnimating];
+            [self.loadingView stopAnimating];
             if (self.currentPlayerItem.playbackLikelyToKeepUp && self.state ==MFPlayerStateBuffering) {
                 self.state = MFPlayerStatePlaying;
             }
-      }
-    }
-}
-
-- (void)loadTimeRanges
-{
-    self.state = MFPlayerStateBuffering;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self play];
-        [self.loadingView stopAnimating];
-    });
-}
-
-//获取缓存总进度
-- (NSTimeInterval)avaliableDuration
-{
-    NSArray* loadedTimeRanges = [_currentPlayerItem loadedTimeRanges];
-    CMTimeRange timeRange = [loadedTimeRanges.firstObject CMTimeRangeValue];//本次缓冲时间范围
-    float startSeconds = CMTimeGetSeconds(timeRange.start);
-    float durationSeconds = CMTimeGetSeconds(timeRange.duration);
-    NSTimeInterval totalBuffer = startSeconds + durationSeconds;
-    NSLog(@"共缓冲: %.2f",totalBuffer);
-    return totalBuffer;
-}
-
-//跳到xx秒播放视频
-- (void)seekToTimePlay:(double)time
-{
-    if (self.player && self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
-        if (time > [self getMediaTotalTime]) {
-            time = [self getMediaTotalTime];
-        }else if (time <0){
-            time = 0;
-        }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.player seekToTime:CMTimeMakeWithSeconds(time, self.currentPlayerItem.currentTime.timescale)];
-    });
-  }
-}
-
-- (CMTime)playItemDuration
-{
-    AVPlayerItem* playItem = _currentPlayerItem;
-    if (playItem.status == AVPlayerItemStatusReadyToPlay) {
-        return [playItem duration];
-    }
-    return (kCMTimeInvalid);
-}
-
-- (void)initTimer
-{
-    double interval = 1.0;
-    CMTime time = [self playItemDuration];
-     if (CMTIME_IS_INVALID(time)) {
-        return ;
-    }
-    
-    double duration = CMTimeGetSeconds(time);
-    if (isfinite(duration)) {
-        CGFloat width = CGRectGetWidth([self.progressSlider bounds]);
-        interval = 0.5f * duration / width;
-    }
-    
-    __weak typeof(self) weakSelf = self;
-    self.playObserve = [weakSelf.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC) queue:NULL usingBlock:^(CMTime time) {
-        [weakSelf syncScrubber];
-     }];
-}
-
-- (NSString*)showTime:(CGFloat)time
-{
-    NSDate* date = [NSDate dateWithTimeIntervalSince1970:time];
-    if (time /3600 > 1) {
-        [[self dateFormatter] setDateFormat:@"HH:mm:ss"];
-    }else {
-        [[self dateFormatter] setDateFormat:@"mm:ss"];
-     }
-    NSString* nowTime = [[self dateFormatter] stringFromDate:date];
-    return nowTime;
-}
-
-- (void)syncScrubber
-{
-    CMTime playerDuration = [self playItemDuration];
-    if (CMTIME_IS_INVALID(playerDuration)) {
-        self.progressSlider.minimumValue = 0.0f;
-        return ;
-    }
-    double duration = CMTimeGetSeconds(playerDuration);
-    if (isfinite(duration)) {
-        float minValue = [self.progressSlider minimumValue];
-        float maxValue = [self.progressSlider maximumValue];
-        double nowTime = CMTimeGetSeconds([self.player currentTime]);
-        self.leftTimeLabel.text = [self showTime:nowTime];
-        self.rightTimeLabel.text = [self showTime:duration];
-       [self.progressSlider setValue:(maxValue - minValue) * nowTime / duration + minValue];
-    }
-}
-
-- (double)getMediaTotalTime
-{
-    AVPlayerItem* item = self.player.currentItem;
-    if (item.status == AVPlayerItemStatusReadyToPlay) {
-        return CMTimeGetSeconds([[item asset] duration]);
-    }
-    
-    return 0.0f;
-}
-
-- (void)autoDismissBottomView:(NSTimer*)timer
-{
-    //播放状态
-    if (self.player.rate == 1.0f) {
-        if (self.bottomView.alpha == 1.0) {
-          [UIView animateWithDuration:0.25 animations:^{
-              self.bottomView.alpha = 0.0;
-              self.topView.alpha = 0.0;
-              self.closeBtn.alpha = 0.0;
-            }];
         }
     }
 }
 
--(void)setState:(MFPlayerState)state
-{
-    _state = state;
-    if (state == MFPlayerStateBuffering) {
-        [self.loadingView startAnimating];
-    }else if (state ==MFPlayerStatePlaying){
-        [self.loadingView stopAnimating];
-    }else if (state == MFPlayerStateReadToPlay){
-        [self.loadingView stopAnimating];
-    }else {
-        [self.loadingView stopAnimating];
-    }
-}
+#pragma mark Public methods
 
-#pragma Public methods
 - (void)play
 {
     [self playOrPauseAction:self.playOrPauseBtn];
@@ -664,25 +588,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 - (double)playingTime
 {
     return 0.2;
-}
-
-- (void)resetMFPlayer
-{
-    self.currentPlayerItem = nil;
-    self.seekTime = 0.0f;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self.autoDismissTimer invalidate];
-    self.autoDismissTimer = nil;
-    [self.player pause];
-    [self.playerLayer removeFromSuperlayer];
-    [self.player replaceCurrentItemWithPlayerItem:nil];
-    self.player = nil;
-}
-
--(void)dealloc
-{
-    NSLog(@"MFPlayer dealloc");
-    [self resetMFPlayer];
 }
 
 - (NSString*)version
@@ -883,5 +788,93 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     }
     return _singleTap;
 }
+
+-(UILabel *)loadingFailedLbl
+{
+    if (!_loadingFailedLbl) {
+        _loadingFailedLbl = [[UILabel alloc]init];
+        _loadingFailedLbl.textColor = [UIColor whiteColor];
+        _loadingFailedLbl.textAlignment = NSTextAlignmentCenter;
+        _loadingFailedLbl.text = @"视频加载失败";
+        _loadingFailedLbl.hidden = YES;
+    }
+    return _loadingFailedLbl;
+}
+
+-(NSDateFormatter *)dateFormatter
+{
+    if (!_dateFormatter) {
+        _dateFormatter = [[NSDateFormatter alloc]init];
+    }
+    return _dateFormatter;
+}
+
+-(void)setState:(MFPlayerState)state
+{
+    _state = state;
+    if (state == MFPlayerStateBuffering) {
+        [self.loadingView startAnimating];
+    }else if (state ==MFPlayerStatePlaying){
+        [self.loadingView stopAnimating];
+    }else if (state == MFPlayerStateReadToPlay){
+        [self.loadingView stopAnimating];
+    }else {
+        [self.loadingView stopAnimating];
+    }
+}
+
+-(void)setUrlString:(NSString *)urlString
+{
+    _urlString = urlString;
+    self.currentPlayerItem = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:urlString]];
+    self.player = [AVPlayer playerWithPlayerItem:self.currentPlayerItem];
+    self.player.usesExternalPlaybackWhileExternalScreenIsActive = YES;
+    self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+    self.playerLayer.frame = self.layer.bounds;
+    self.playerLayer.videoGravity = AVLayerVideoGravityResize;
+    [self.layer insertSublayer:self.playerLayer atIndex:0];
+    self.state = MFPlayerStateBuffering;
+    if (self.style == MFPlayerCloseBtnStylePop) {
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play_back.png")] forState:UIControlStateNormal];
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play_back.png")]  forState:UIControlStateSelected];
+    }else {
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateNormal];
+        [_closeBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"close")] forState:UIControlStateSelected];
+    }
+}
+
+-(void)setCurrentPlayerItem:(AVPlayerItem *)currentPlayerItem
+{
+    if (_currentPlayerItem == currentPlayerItem) {
+        return;
+    }
+    if (_currentPlayerItem) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
+        [_currentPlayerItem removeObserver:self forKeyPath:kStatus];
+        [_currentPlayerItem removeObserver:self forKeyPath:kLoadtimeRangesKey];
+        [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackBufferEmpty];
+        [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackLikelyToKeepUp];
+        _currentPlayerItem = nil;
+    }
+    _currentPlayerItem = currentPlayerItem;
+    if (_currentPlayerItem) {
+        [_currentPlayerItem addObserver:self forKeyPath:kStatus options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        [_currentPlayerItem addObserver:self forKeyPath:kLoadtimeRangesKey options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        //缓冲区数据为空
+        [_currentPlayerItem addObserver:self forKeyPath:kPlaybackBufferEmpty options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        //缓冲区数据足够，可以播放了
+        [_currentPlayerItem addObserver:self forKeyPath:kPlaybackLikelyToKeepUp options:NSKeyValueObservingOptionNew context:AVPlayerPlayBackViewStatusObservationContext];
+        [self.player replaceCurrentItemWithPlayerItem:_currentPlayerItem];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayDidEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:_currentPlayerItem];
+    }
+}
+
+-(void)dealloc
+{
+    NSLog(@"%@ dealloc",NSStringFromClass([self class]));
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self resetMFPlayer];
+}
+
 
 @end
