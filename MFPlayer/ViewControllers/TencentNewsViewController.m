@@ -127,12 +127,19 @@
     self.currentCell = (VideoCell*)btn.superview.superview;
     VideoModel* videoModel = _dataArray[btn.tag];
     if (_mfPlayer) {
-        [self resertMFPlayer];
-        _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
-        _mfPlayer.style = MFPlayerCloseBtnStyleClose;
-        _mfPlayer.delegate = self;
-        _mfPlayer.titleLbl.text = videoModel.title;//标题
-        _mfPlayer.urlString = videoModel.mp4_url;
+        if ([_mfPlayer.urlString isEqualToString:videoModel.mp4_url]) {
+            _mfPlayer.playOrPauseBtn.selected = NO;
+            [self.currentCell.playBtn.superview sendSubviewToBack:self.currentCell.playBtn];
+            [_mfPlayer.player play];
+            return;
+        }else {
+            [self resertMFPlayer];
+            _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
+            _mfPlayer.style = MFPlayerCloseBtnStyleClose;
+            _mfPlayer.delegate = self;
+            _mfPlayer.titleLbl.text = videoModel.title;//标题
+            _mfPlayer.urlString = videoModel.mp4_url;
+       }
     }else {
         _mfPlayer = [[MFPlayer alloc]initWithFrame:self.currentCell.backgroundIV.bounds];
         _mfPlayer.style = MFPlayerCloseBtnStyleClose;
@@ -324,6 +331,23 @@
     [currentCell.playBtn.superview bringSubviewToFront:currentCell.playBtn];
     [self resertMFPlayer];
     [self setNeedsStatusBarAppearanceUpdate];
+}
+
+- (void)mfPlayer:(MFPlayer *)player appDidEnterBackground:(id)backGround
+{
+    if (player.player.rate ==1.0) {
+        [player.player pause];
+         player.playOrPauseBtn.selected = YES;
+        VideoCell* currentCell = (VideoCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:_currentIndexPath.row inSection:0]];
+        [currentCell.playBtn.superview bringSubviewToFront:currentCell.playBtn];
+    }
+}
+
+- (void)mfPlayer:(MFPlayer *)player appWillEnterForeground:(id)backGround
+{
+    if (player) {
+        [player.player pause];
+    }
 }
 
 #pragma mark notification

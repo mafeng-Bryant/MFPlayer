@@ -182,8 +182,6 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 - (void)addNotification
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appwillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
@@ -477,24 +475,20 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     }];
 }
 
-- (void)appwillResignActive:(NSNotification *)noti
+//进入后台
+- (void)appDidEnterBackground:(NSNotification *)notification
 {
-    NSLog(@"appwillResignActive");
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:appDidEnterBackground:)]) {
+        [self.delegate mfPlayer:self appDidEnterBackground:notification];
+    }
 }
 
-- (void)appBecomeActive:(NSNotification *)noti
+//将要进入前台
+- (void)appWillEnterForeground:(NSNotification *)notification
 {
-    NSLog(@"appBecomeActive");
-}
-
-- (void)appDidEnterBackground:(NSNotification *)noti
-{
-    NSLog(@"appDidEnterBackground");
-}
-
-- (void)appWillEnterForeground:(NSNotification *)noti
-{
-    NSLog(@"appWillEnterForeground");
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:appWillEnterForeground:)]) {
+        [self.delegate mfPlayer:self appWillEnterForeground:notification];
+    }
 }
 
 #pragma mark KVO
@@ -873,6 +867,10 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 {
     NSLog(@"%@ dealloc",NSStringFromClass([self class]));
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [_currentPlayerItem removeObserver:self forKeyPath:kStatus];
+    [_currentPlayerItem removeObserver:self forKeyPath:kLoadtimeRangesKey];
+    [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackBufferEmpty];
+    [_currentPlayerItem removeObserver:self forKeyPath:kPlaybackLikelyToKeepUp];
     [self resetMFPlayer];
 }
 

@@ -41,6 +41,10 @@ typedef enum {
 
 - (void)mfPlayer:(MFPlayer *)player playFinished:(id)finish;
 
+- (void)mfPlayer:(MFPlayer *)player appDidEnterBackground:(id)backGround;
+
+- (void)mfPlayer:(MFPlayer *)player appWillEnterForeground:(id)backGround;
+
 
 @end
 
