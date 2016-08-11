@@ -14,7 +14,6 @@
 #define kHalfWidth        self.frame.size.width * 0.5
 #define kHalfHeight       self.frame.size.height * 0.5
 
-
 NSString* const kStatus                   = @"status";
 NSString* const kLoadtimeRangesKey        = @"loadedTimeRanges";
 NSString* const kPlaybackBufferEmpty      = @"playbackBufferEmpty";
@@ -32,269 +31,297 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 }
 @property (nonatomic,strong) UISlider* lightSlider; //亮度的进度条，和屏幕的亮度一样
 @property (nonatomic,strong) UISlider* volumeSlider;
+@property (nonatomic,strong) MPVolumeView* volumeView;
 @property (nonatomic,strong) UISlider* progressSlider;
 @property (nonatomic,strong) UITapGestureRecognizer* tap;
 @property (nonatomic,strong) UIProgressView* loadingProgress;
 @property (nonatomic,strong) UILabel*  leftTimeLabel;
 @property (nonatomic,strong) UILabel*  rightTimeLabel;
-@property (nonatomic, strong)NSDateFormatter *dateFormatter;
-@property (nonatomic, assign) BOOL isDragingSlider;//是否点击了按钮的响应事件
-
-//播放器的监听者
-@property (nonatomic,strong) id playObserve;
+@property (nonatomic,strong) NSDateFormatter *dateFormatter;
+@property (nonatomic,strong) UISlider* systemSlider;
+@property (nonatomic,strong) UITapGestureRecognizer* singleTap;
+@property (nonatomic,strong) id playObserve; //播放器的监听者
 
 @end
 
-
 @implementation MFPlayer
-{
-    UISlider* _systemSlider;
-    UITapGestureRecognizer* _singleTap;
-}
 
+#pragma mark cicyle
 
--(instancetype)init
+- (instancetype)init
 {
     self = [super init];
     if (self) {
-      [self initMFPlayer];
+      [self setUp];
     }
     return self;
 }
 
--(instancetype)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [self initMFPlayer];
+        [self setUp];
     }
     return self;
 }
 
-//初始化播放器类
-- (void)initMFPlayer
+#pragma mark Private methods
+
+- (void)setUp
 {
-     _isDragingSlider = NO;
     self.seekTime = 0.0;
     self.backgroundColor = [UIColor blackColor];
-    //loading
-    self.loadingView = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    //loadingView
     [self addSubview:self.loadingView];
+    //topview
+    [self addSubview:self.topView];
+    //bottomView
+    [self addSubview:self.bottomView];
+    //自动适应尺寸
+    [self setAutoresizesSubviews:NO];
+    //playOrPausebtn
+    [self.bottomView addSubview:self.playOrPauseBtn];
+    //slider
+    [self addSubview:self.lightSlider];
+    //system slider
+    [self addSubview:self.systemSlider];
+    //slider change
+    [self addSubview:self.volumeSlider];
+    [self.bottomView addSubview:self.progressSlider];
+    [self.bottomView addSubview:self.loadingProgress];
+    [self.bottomView sendSubviewToBack:self.loadingProgress];
+    //fullScreenbtn
+    [self.bottomView addSubview:self.fullScreenBtn];
+    //left time label
+    [self.bottomView addSubview:self.leftTimeLabel];
+    //right time label
+    [self.bottomView addSubview:self.rightTimeLabel];
+    //closeBtn
+    [self.topView addSubview:self.closeBtn];
+    //titleLabel
+    [self.topView addSubview:self.titleLbl];
+    [self bringSubviewToFront:self.loadingView];
+    [self bringSubviewToFront:self.bottomView];
+    [self addGestureRecognizer:self.singleTap];
+    [self addConstraints];
+    [self addNotification];
+}
+
+- (void)addConstraints
+{
+    //all view add constraints
     [self.loadingView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self);
     }];
-    
-    //topview
-    self.topView = [[UIView alloc]init];
-    self.topView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
-    [self addSubview:self.topView];
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self).with.offset(0);
         make.left.equalTo(self).with.offset(0);
         make.right.equalTo(self).with.offset(0);
         make.height.mas_equalTo(40);
     }];
-    
-    //bottomView
-    self.bottomView = [[UIView alloc]init];
-    self.bottomView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
-    [self addSubview:self.bottomView];
     [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self).with.offset(0);
         make.right.equalTo(self).with.offset(0);
         make.bottom.equalTo(self).with.offset(0);
         make.height.mas_equalTo(40);
     }];
-    
-    //自动适应尺寸
-    [self setAutoresizesSubviews:NO];
-    
-    //playOrPausebtn
-    self.playOrPauseBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.playOrPauseBtn.showsTouchWhenHighlighted = YES;
-    [self.playOrPauseBtn addTarget:self action:@selector(playOrPauseAction:) forControlEvents:UIControlEventTouchUpInside];
-    [self.playOrPauseBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"pause")] forState:UIControlStateNormal];
-    [self.playOrPauseBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play")] forState:UIControlStateSelected];
-    [self.bottomView addSubview:self.playOrPauseBtn];
     [self.playOrPauseBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.width.mas_equalTo(40);
         make.height.mas_equalTo(40);
         make.left.equalTo(self.bottomView).with.offset(0);
         make.bottom.equalTo(self.bottomView).with.offset(0);
-     }];
-    
-    //slider
-    self.lightSlider = [[UISlider alloc]init];
-    self.lightSlider.frame = CGRectMake(0, 0, 0, 0);
-    self.lightSlider.minimumValue = 0.0;
-    self.lightSlider.maximumValue = 1.0;
-    self.lightSlider.hidden = YES;
-    self.lightSlider.value = [UIScreen mainScreen].brightness;
-    [self addSubview:self.lightSlider];
-    
-    //音量调节视图
-    MPVolumeView* volumeView = [[MPVolumeView alloc]init];
-    [self addSubview:volumeView];
-    volumeView.frame = CGRectMake(-10000, -100, 100, 100);
-    [volumeView sizeToFit];
-    
-    //system slider
-    _systemSlider = [[UISlider alloc]init];
-    _systemSlider.backgroundColor = [UIColor clearColor];
-    for (UIView* view in volumeView.subviews) {
-        if ([NSStringFromClass(view.classForCoder)  isEqualToString: @"MPVolumeSlider"]) {
-            _systemSlider = (UISlider*)view;
-        }
-    }
-    _systemSlider.autoresizesSubviews = NO;
-    _systemSlider.autoresizingMask = UIViewAutoresizingNone;
-    [self addSubview:_systemSlider];
-    
-    //slider change
-    self.volumeSlider = [[UISlider alloc]initWithFrame:CGRectZero];
-    self.volumeSlider.tag = 1000;
-    self.volumeSlider.hidden = YES;
-    self.volumeSlider.minimumValue = _systemSlider.minimumValue;
-    self.volumeSlider.maximumValue = _systemSlider.maximumValue;
-    self.volumeSlider.value = _systemSlider.value;
-    [self.volumeSlider addTarget:self action:@selector(updateSystemVolumeValue:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.volumeSlider];
-    
-    
-    //slider
-    self.progressSlider = [[UISlider alloc]init];
-    self.progressSlider.minimumValue = 0.0;
-    [self.progressSlider setThumbImage:[UIImage imageNamed:MFPlayerSrcName(@"dot")] forState:UIControlStateNormal];
-    self.progressSlider.minimumTrackTintColor = [UIColor greenColor];
-    self.progressSlider.maximumTrackTintColor = [UIColor clearColor];
-    self.progressSlider.value = 0.0;
-    //进度条拖曳事件
-    [self.progressSlider addTarget:self action:@selector(startDragSlider:) forControlEvents:UIControlEventValueChanged];
-    [self.bottomView addSubview:self.progressSlider];
-     self.progressSlider.backgroundColor = [UIColor clearColor];
-
-
-    //autolayout slider
+    }];
     [self.progressSlider mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.bottomView).with.offset(45);
         make.right.equalTo(self.bottomView).with.offset(-45);
         make.center.equalTo(self.bottomView);
-   }];
-    
-    
-    self.loadingProgress = [[UIProgressView alloc]initWithProgressViewStyle:UIProgressViewStyleDefault];
-    self.loadingProgress.progressTintColor = [UIColor clearColor];
-    self.loadingProgress.trackTintColor = [UIColor lightGrayColor];
-    [self.bottomView addSubview:self.loadingProgress];
-    [self.loadingProgress setProgress:0.0 animated:NO];
+    }];
     [self.loadingProgress mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.progressSlider);
         make.right.equalTo(self.progressSlider);
         make.center.equalTo(self.progressSlider);
     }];
-    [self.bottomView sendSubviewToBack:self.loadingProgress];
-
-    
-    //fullbtn
-    self.fullScreenBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.fullScreenBtn.showsTouchWhenHighlighted = YES;
-    [self.fullScreenBtn addTarget:self action:@selector(fullScreenBtnAction:) forControlEvents:UIControlEventTouchUpInside];
-    [self.fullScreenBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"fullscreen")] forState:UIControlStateNormal];
-    [self.fullScreenBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"nonfullscreen")] forState:UIControlStateSelected];
-    [self.bottomView addSubview:self.fullScreenBtn];
     [self.fullScreenBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self.bottomView).with.offset(0);
         make.bottom.equalTo(self.bottomView).with.offset(0);
         make.width.mas_equalTo(40);
         make.height.mas_equalTo(40);
     }];
-    
-    //time label
-    self.leftTimeLabel = [[UILabel alloc]init];
-    self.leftTimeLabel.textAlignment = NSTextAlignmentLeft;
-    self.leftTimeLabel.textColor = [UIColor whiteColor];
-    self.leftTimeLabel.backgroundColor = [UIColor clearColor];
-    self.leftTimeLabel.font = [UIFont systemFontOfSize:11];
-    [self.bottomView addSubview:self.leftTimeLabel];
-    //autoLayout timeLabel
     [self.leftTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.bottomView).with.offset(45);
         make.right.equalTo(self.bottomView).with.offset(-45);
         make.height.mas_equalTo(20);
         make.bottom.equalTo(self.bottomView).with.offset(0);
     }];
-    
-    //rightTimeLabel
-    self.rightTimeLabel = [[UILabel alloc]init];
-    self.rightTimeLabel.textAlignment = NSTextAlignmentRight;
-    self.rightTimeLabel.textColor = [UIColor whiteColor];
-    self.rightTimeLabel.backgroundColor = [UIColor clearColor];
-    self.rightTimeLabel.font = [UIFont systemFontOfSize:11];
-    [self.bottomView addSubview:self.rightTimeLabel];
-    //autoLayout timeLabel
     [self.rightTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.bottomView).with.offset(45);
         make.right.equalTo(self.bottomView).with.offset(-45);
         make.height.mas_equalTo(20);
         make.bottom.equalTo(self.bottomView).with.offset(0);
     }];
-    
-    //_closeBtn
-    _closeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    _closeBtn.showsTouchWhenHighlighted = YES;
-    [_closeBtn addTarget:self action:@selector(colseTheVideo:) forControlEvents:UIControlEventTouchUpInside];
-    [self.topView addSubview:_closeBtn];
-    //autoLayout _closeBtn
     [self.closeBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.topView).with.offset(5);
         make.height.mas_equalTo(30);
         make.top.equalTo(self.topView).with.offset(5);
         make.width.mas_equalTo(30);
-        
     }];
-    
-    //titleLabel
-    self.titleLbl = [[UILabel alloc]init];
-    self.titleLbl.textAlignment = NSTextAlignmentCenter;
-    self.titleLbl.textColor = [UIColor whiteColor];
-    self.titleLbl.backgroundColor = [UIColor clearColor];
-    self.titleLbl.font = [UIFont systemFontOfSize:17.0];
-    [self.topView addSubview:self.titleLbl];
-    //autoLayout titleLabel
-    
     [self.titleLbl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.topView).with.offset(45);
         make.right.equalTo(self.topView).with.offset(-45);
         make.center.equalTo(self.topView);
         make.top.equalTo(self.topView).with.offset(0);
     }];
-
-    [self bringSubviewToFront:self.loadingView];
-    [self bringSubviewToFront:self.bottomView];
-    
-    // 单击的 Recognizer
-    _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
-    _singleTap.numberOfTapsRequired = 1; // 单击
-    _singleTap.numberOfTouchesRequired = 1;
-    [self addGestureRecognizer:_singleTap];
-    
-    [self addNotification];
 }
-
-#pragma mark Private methods
 
 - (void)addNotification
 {
-    //监听是否触发home键挂起程序.
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appwillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
-    //监听是否重新进入程序程序.
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:)
-                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
-#pragma mark NSNotification
+//设置跳转到某一时间
+- (void)setCurrentTime:(double)time{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.player seekToTime:CMTimeMakeWithSeconds(time, self.currentPlayerItem.currentTime.timescale)];
+    });
+}
+
+//获取视频当前播放的时间
+- (double)currentPlayTime
+{
+    if (self.player) {
+        return CMTimeGetSeconds([self.player currentTime]);
+    }else {
+        return 0.0f;
+    }
+}
+
+//获取视频播放的总时长
+- (double)totalTime
+{
+    if (self.player) {
+        AVPlayerItem* playerItem = self.player.currentItem;
+        if (playerItem.status == AVPlayerItemStatusReadyToPlay) {
+            return CMTimeGetSeconds([[playerItem asset] duration]);
+        }else {
+            return 0.0f;
+        }
+    }else {
+        return 0.0f;
+    }
+}
+
+//跳转到某一时间播放
+- (void)seekToTime:(CGFloat)seconds
+{
+    if (self.state ==MFPlayerStateStopped) {
+        return;
+    }
+    seconds = MAX(0, seconds);
+    seconds = MIN(seconds, [self getMediaTotalTime]);
+    [self.player pause];
+    [self.player seekToTime:CMTimeMakeWithSeconds(seconds, NSEC_PER_SEC) completionHandler:^(BOOL finished) {
+        [self.player play];
+        if (!self.currentPlayerItem.isPlaybackLikelyToKeepUp) {
+            self.state = MFPlayerStateBuffering;
+            [self.loadingView startAnimating];
+        }
+    }];
+}
+
+//更新进度条的时间
+- (void)updateCurrentTime:(CGFloat)time
+{
+    NSDate* date = [NSDate dateWithTimeIntervalSince1970:time];
+    if (time /3600 > 1) {
+        [[self dateFormatter] setDateFormat:@"HH:mm:ss"];
+    }else {
+        [[self dateFormatter] setDateFormat:@"mm:ss"];
+    }
+    self.leftTimeLabel.text = [[self dateFormatter] stringFromDate:date];
+}
+
+
+#pragma mark Event Response
+//单击视频处理
+- (void)handleSingleTap:(UITapGestureRecognizer*)tap
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(autoDismissBottomView:) object:nil];
+    [self.autoDismissTimer invalidate];
+    self.autoDismissTimer = nil;
+    self.autoDismissTimer = [NSTimer timerWithTimeInterval:5.0 target:self selector:@selector(autoDismissBottomView:) userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:self.autoDismissTimer forMode:NSDefaultRunLoopMode];
+    [UIView animateWithDuration:0.25 animations:^{
+        if (self.topView.alpha ==0.0) {
+            self.topView.alpha = 1.0;
+            self.bottomView.alpha = 1.0;
+            self.closeBtn.alpha = 1.0;
+        }else if (self.topView.alpha ==1.0){
+            self.topView.alpha = 0.0;
+            self.bottomView.alpha = 0.0;
+            self.closeBtn.alpha = 0.0;
+        }
+    } completion:^(BOOL finished) {
+    }];
+}
+
+//关闭视频播放
+- (void)colseTheVideo:(UIButton*)btn
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:closeBtn:)]) {
+        [self.delegate mfPlayer:self closeBtn:btn];
+    }
+}
+
+//全屏视频播放
+- (void)fullScreenBtnAction:(UIButton*)btn
+{
+    btn.selected = !btn.selected;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:clickFullScreen:)]) {
+        [self.delegate mfPlayer:self clickFullScreen:btn];
+    }
+}
+
+//播放或者暂停播放
+- (void)playOrPauseAction:(UIButton*)btn
+{
+    if (self.player.rate != 1.0f) {
+        if ([self currentPlayTime] == [self totalTime]) {
+            [self setCurrentTime:0.0];
+        }
+        btn.selected = NO;
+        [self.player play];
+    }else {
+        btn.selected = YES;
+        [self.player pause];
+    }
+}
+
+//开始拖曳进度条
+- (void)startDragSlider:(UISlider*)slider
+{
+    [self updateCurrentTime:slider.value];
+}
+
+//进度条改变响应
+- (void)startChangeSlider:(UISlider*)slider
+{
+    [self seekToTime:slider.value];
+    [self updateCurrentTime:slider.value];
+}
+
+//更新系统声音
+- (void)updateSystemVolumeValue:(UISlider*)slider
+{
+    
+}
+
+
+
+#pragma mark NSNotification method
 
 - (void)moviePlayDidEnd:(NSNotification*)noti
 {
@@ -316,6 +343,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 {
     NSLog(@"appwillResignActive");
 }
+
 - (void)appBecomeActive:(NSNotification *)noti
 {
     NSLog(@"appBecomeActive");
@@ -325,103 +353,17 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 {
     NSLog(@"appDidEnterBackground");
 }
+
 - (void)appWillEnterForeground:(NSNotification *)noti
 {
     NSLog(@"appWillEnterForeground");
 }
 
-- (void)handleSingleTap:(UITapGestureRecognizer*)tap
-{
-   [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(autoDismissBottomView:) object:nil];
-    [self.autoDismissTimer invalidate];
-    self.autoDismissTimer = nil;
-    self.autoDismissTimer = [NSTimer timerWithTimeInterval:5.0 target:self selector:@selector(autoDismissBottomView:) userInfo:nil repeats:YES];
-    [[NSRunLoop currentRunLoop] addTimer:self.autoDismissTimer forMode:NSDefaultRunLoopMode];
-    [UIView animateWithDuration:0.25 animations:^{
-        if (self.topView.alpha ==0.0) {
-            self.topView.alpha = 1.0;
-            self.bottomView.alpha = 1.0;
-            self.closeBtn.alpha = 1.0;
-        }else if (self.topView.alpha ==1.0){
-            self.topView.alpha = 0.0;
-            self.bottomView.alpha = 0.0;
-            self.closeBtn.alpha = 0.0;
-        }
-        } completion:^(BOOL finished) {
-     }];
-}
 
-- (void)colseTheVideo:(UIButton*)btn
-{
-    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:closeBtn:)]) {
-        [self.delegate mfPlayer:self closeBtn:btn];
-    }
-}
 
-- (void)fullScreenBtnAction:(UIButton*)btn
-{
-    btn.selected = !btn.selected;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(mfPlayer:clickFullScreen:)]) {
-        [self.delegate mfPlayer:self clickFullScreen:btn];
-    }
-}
 
-- (void)playOrPauseAction:(UIButton*)btn
-{
-    if (self.player.rate != 1.0f) {
-        if ([self currentPlayTime] == [self totalTime]) {
-            [self setCurrentTime:0.0];
-        }
-         btn.selected = NO;
-        [self.player play];
-    }else {
-        btn.selected = YES;
-        [self.player pause];
-    }
-}
 
-- (void)setCurrentTime:(double)time{
-     dispatch_async(dispatch_get_main_queue(), ^{
-         [self.player seekToTime:CMTimeMakeWithSeconds(time, self.currentPlayerItem.currentTime.timescale)];
-     });
-}
 
-//获取视频当前播放的时间
-- (double)currentPlayTime
-{
-    if (self.player) {
-        return CMTimeGetSeconds([self.player currentTime]);
-    }else {
-        return 0.0f;
-    }
- }
-
-//获取视频的总时长
-- (double)totalTime
-{
-    if (self.player) {
-        AVPlayerItem* playerItem = self.player.currentItem;
-        if (playerItem.status == AVPlayerItemStatusReadyToPlay) {
-            return CMTimeGetSeconds([[playerItem asset] duration]);
-        }else {
-            return 0.0f;
-        }
-     }else {
-        return 0.0f;
-    }
-}
-
-- (void)updateSystemVolumeValue:(UISlider*)slider
-{
-  
-    
-
-}
-
-- (void)startDragSlider:(UISlider*)slider
-{
-    self.isDragingSlider = YES;
-}
 
 #pragma mark set and get method
 
@@ -666,11 +608,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         double nowTime = CMTimeGetSeconds([self.player currentTime]);
         self.leftTimeLabel.text = [self showTime:nowTime];
         self.rightTimeLabel.text = [self showTime:duration];
-        if (self.isDragingSlider) {
-            
-        }else {
-            [self.progressSlider setValue:(maxValue - minValue) * nowTime / duration + minValue];
-        }
+       [self.progressSlider setValue:(maxValue - minValue) * nowTime / duration + minValue];
     }
 }
 
@@ -680,6 +618,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     if (item.status == AVPlayerItemStatusReadyToPlay) {
         return CMTimeGetSeconds([[item asset] duration]);
     }
+    
     return 0.0f;
 }
 
@@ -749,6 +688,200 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 - (NSString*)version
 {
    return @"1.0.0";
+}
+
+#pragma mark set and get method
+
+-(UIActivityIndicatorView *)loadingView
+{
+    if (!_loadingView) {
+        _loadingView = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    }
+    return _loadingView;
+}
+
+-(UIView *)topView
+{
+    if (!_topView) {
+        _topView = [[UIView alloc]init];
+        _topView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
+    }
+    return _topView;
+}
+
+-(UIView *)bottomView
+{
+    if (!_bottomView) {
+        _bottomView = [[UIView alloc]init];
+        _bottomView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
+    }
+    return _bottomView;
+}
+
+-(UIButton *)playOrPauseBtn
+{
+    if (!_playOrPauseBtn) {
+        _playOrPauseBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _playOrPauseBtn.showsTouchWhenHighlighted = YES;
+        [_playOrPauseBtn addTarget:self action:@selector(playOrPauseAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_playOrPauseBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"pause")] forState:UIControlStateNormal];
+        [_playOrPauseBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"play")] forState:UIControlStateSelected];
+    }
+    return _playOrPauseBtn;
+}
+
+-(UISlider *)lightSlider
+{
+    if (!_lightSlider) {
+        _lightSlider = [[UISlider alloc]init];
+        _lightSlider.frame = CGRectMake(0, 0, 0, 0);
+        _lightSlider.minimumValue = 0.0;
+        _lightSlider.maximumValue = 1.0;
+        _lightSlider.hidden = YES;
+        _lightSlider.value = [UIScreen mainScreen].brightness;
+    }
+    return _lightSlider;
+}
+
+-(MPVolumeView *)volumeView
+{
+    if (!_volumeView) {
+        _volumeView = [[MPVolumeView alloc]init];
+        _volumeView.backgroundColor = [UIColor clearColor];
+        _volumeView.frame = CGRectMake(-10000, -100, 100, 100);
+        _volumeView.hidden = YES;
+        [_volumeView sizeToFit];
+    }
+    return _volumeView;
+}
+
+-(UISlider *)systemSlider
+{
+    if (!_systemSlider) {
+        _systemSlider = [[UISlider alloc]init];
+        _systemSlider.backgroundColor = [UIColor clearColor];
+        for (UIView* view in self.volumeView.subviews) {
+            if ([NSStringFromClass(view.classForCoder)  isEqualToString: @"MPVolumeSlider"]) {
+                _systemSlider = (UISlider*)view;
+            }
+        }
+        _systemSlider.autoresizesSubviews = NO;
+        _systemSlider.autoresizingMask = UIViewAutoresizingNone;
+        _systemSlider.hidden = YES;
+    }
+    return _systemSlider;
+}
+
+-(UISlider *)volumeSlider
+{
+    if (!_volumeSlider) {
+        _volumeSlider = [[UISlider alloc]initWithFrame:CGRectZero];
+        _volumeSlider.tag = 1000;
+        _volumeSlider.hidden = YES;
+        _volumeSlider.minimumValue = _systemSlider.minimumValue;
+        _volumeSlider.maximumValue = _systemSlider.maximumValue;
+        _volumeSlider.value = _systemSlider.value;
+        [_volumeSlider addTarget:self action:@selector(updateSystemVolumeValue:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _volumeSlider;
+}
+
+-(UISlider *)progressSlider
+{
+    if (!_progressSlider) {
+        _progressSlider = [[UISlider alloc]init];
+        _progressSlider.minimumValue = 0.0;
+        [_progressSlider setThumbImage:[UIImage imageNamed:MFPlayerSrcName(@"dot")] forState:UIControlStateNormal];
+        _progressSlider.minimumTrackTintColor = [UIColor greenColor];
+        _progressSlider.maximumTrackTintColor = [UIColor clearColor];
+        _progressSlider.value = 0.0;
+        //进度条拖曳事件
+        [_progressSlider addTarget:self action:@selector(startDragSlider:) forControlEvents:UIControlEventValueChanged];
+        [_progressSlider addTarget:self action:@selector(startChangeSlider:) forControlEvents:UIControlEventTouchUpInside];
+        [_progressSlider addTarget:self action:@selector(startChangeSlider:) forControlEvents:UIControlEventTouchUpOutside];
+        [_progressSlider addTarget:self action:@selector(startChangeSlider:) forControlEvents:UIControlEventTouchCancel];
+        _progressSlider.backgroundColor = [UIColor clearColor];
+    }
+    return _progressSlider;
+}
+
+-(UIProgressView *)loadingProgress
+{
+    if (!_loadingProgress) {
+        _loadingProgress = [[UIProgressView alloc]initWithProgressViewStyle:UIProgressViewStyleDefault];
+        _loadingProgress.progressTintColor = [UIColor clearColor];
+        _loadingProgress.trackTintColor = [UIColor lightGrayColor];
+        [_loadingProgress setProgress:0.0 animated:NO];
+    }
+    return _loadingProgress;
+}
+
+-(UIButton *)fullScreenBtn
+{
+    if (!_fullScreenBtn) {
+        _fullScreenBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _fullScreenBtn.showsTouchWhenHighlighted = YES;
+        [_fullScreenBtn addTarget:self action:@selector(fullScreenBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+        [_fullScreenBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"fullscreen")] forState:UIControlStateNormal];
+        [_fullScreenBtn setImage:[UIImage imageNamed:MFPlayerSrcName(@"nonfullscreen")] forState:UIControlStateSelected];
+    }
+    return _fullScreenBtn;
+}
+
+-(UILabel *)leftTimeLabel
+{
+    if (!_leftTimeLabel) {
+        _leftTimeLabel = [[UILabel alloc]init];
+        _leftTimeLabel.textAlignment = NSTextAlignmentLeft;
+        _leftTimeLabel.textColor = [UIColor whiteColor];
+        _leftTimeLabel.backgroundColor = [UIColor clearColor];
+        _leftTimeLabel.font = [UIFont systemFontOfSize:11];
+    }
+    return _leftTimeLabel;
+}
+
+-(UILabel *)rightTimeLabel
+{
+    if (!_rightTimeLabel) {
+        _rightTimeLabel = [[UILabel alloc]init];
+        _rightTimeLabel.textAlignment = NSTextAlignmentRight;
+        _rightTimeLabel.textColor = [UIColor whiteColor];
+        _rightTimeLabel.backgroundColor = [UIColor clearColor];
+        _rightTimeLabel.font = [UIFont systemFontOfSize:11];
+    }
+    return _rightTimeLabel;
+}
+
+-(UIButton *)closeBtn
+{
+    if (!_closeBtn) {
+        _closeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _closeBtn.showsTouchWhenHighlighted = YES;
+        [_closeBtn addTarget:self action:@selector(colseTheVideo:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _closeBtn;
+}
+
+-(UILabel *)titleLbl
+{
+    if (!_titleLbl) {
+        _titleLbl = [[UILabel alloc]init];
+        _titleLbl.textAlignment = NSTextAlignmentCenter;
+        _titleLbl.textColor = [UIColor whiteColor];
+        _titleLbl.backgroundColor = [UIColor clearColor];
+        _titleLbl.font = [UIFont systemFontOfSize:17.0];
+    }
+    return _titleLbl;
+}
+
+-(UITapGestureRecognizer *)singleTap
+{
+    if (!_singleTap) {
+        _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+        _singleTap.numberOfTapsRequired = 1; // 单击
+        _singleTap.numberOfTouchesRequired = 1;
+    }
+    return _singleTap;
 }
 
 @end
