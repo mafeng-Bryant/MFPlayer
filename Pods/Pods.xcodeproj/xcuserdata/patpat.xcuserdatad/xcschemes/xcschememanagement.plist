@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Hoko.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>MJRefresh.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -37,7 +42,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>11656A4EC5687ECE9079991E7380E68E</key>
+		<key>02FE650CD76856A08B03973F2F0F0CB2</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -47,7 +52,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>77C0D6B4133055516A21F4C2C4250A17</key>
+		<key>7F76AA075719E7E25C43AA8652365242</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9A66AA8576B1BE1065768557BEA93DEB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -57,12 +67,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>E563DB7779495BBFEED6310338D34F57</key>
+		<key>ADEF95D3DDAFB277E1706373C3B951F9</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>F045556619157971E7D04DF8DF8CB87F</key>
+		<key>F19E10CF4C2553BB08542622D5E1E818</key>
 		<dict>
 			<key>primary</key>
 			<true/>

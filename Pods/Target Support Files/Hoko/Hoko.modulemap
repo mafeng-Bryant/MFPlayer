@@ -1,0 +1,6 @@
+framework module Hoko {
+  umbrella header "Hoko-umbrella.h"
+
+  export *
+  module * { export * }
+}

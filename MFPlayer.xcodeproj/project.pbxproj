@@ -142,6 +142,7 @@
 		E2923A751D5333120058BAC6 /* PersonCenterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PersonCenterViewController.h; sourceTree = "<group>"; };
 		E2923A761D5333120058BAC6 /* PersonCenterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PersonCenterViewController.m; sourceTree = "<group>"; };
 		E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PersonCenterViewController.xib; sourceTree = "<group>"; };
+		E297F3171D5DADA2001D9B96 /* MFPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MFPlayer.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +223,7 @@
 		E29239EE1D53192B0058BAC6 /* MFPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				E297F3171D5DADA2001D9B96 /* MFPlayer.entitlements */,
 				E22BA0411D534254004DEDA4 /* Player */,
 				E2923A7A1D5334900058BAC6 /* View */,
 				E2923A5D1D532FE80058BAC6 /* MBProgressHUD */,
@@ -435,6 +437,12 @@
 				TargetAttributes = {
 					E29239EB1D53192B0058BAC6 = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = 6AJP77DB44;
+						SystemCapabilities = {
+							com.apple.SafariKeychain = {
+								enabled = 1;
+							};
+						};
 					};
 					E2923A041D53192B0058BAC6 = {
 						CreatedOnToolsVersion = 7.3;
@@ -721,6 +729,7 @@
 			baseConfigurationReference = A7B3E2C5B751F4E36AA8643B /* Pods-MFPlayer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MFPlayer/MFPlayer.entitlements;
 				INFOPLIST_FILE = MFPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -734,6 +743,7 @@
 			baseConfigurationReference = 69DB5D6CF19AEF08028397B8 /* Pods-MFPlayer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MFPlayer/MFPlayer.entitlements;
 				INFOPLIST_FILE = MFPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
