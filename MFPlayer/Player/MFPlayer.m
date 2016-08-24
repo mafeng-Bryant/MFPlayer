@@ -8,6 +8,8 @@
 
 #import "MFPlayer.h"
 
+#define kLeastMoveDistance 15
+
 
 #define MFPlayerSrcName(file) [@"MFPlayer.bundle" stringByAppendingPathComponent:file]
 #define MFPlayerFrameworkSrcName(file) [@"Frameworks/MFPlayer.framework/MFPlayer.bundle" stringByAppendingPathComponent:file]
@@ -25,10 +27,20 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 @interface MFPlayer()<UIGestureRecognizerDelegate>
 {
-
- 
-    
+    //判断手势是否移动过
+    BOOL _hasMoved;
+    //判断是否已经判断手势划的方向
+    BOOL _controlJudge;
+    //触摸开始的点
+    CGPoint _touchBeginPoint;
+    //记录触摸开始视频的播放时间
+    float _touchBeginPlayTimeValue;
+    //记录触摸开始亮度
+    float _touchBeginLightValue;
+    //记录触摸开始的音量
+    float _touchBeginVoiceValue;
 }
+
 @property (nonatomic,strong) UISlider* lightSlider;
 @property (nonatomic,strong) UISlider* volumeSlider;
 @property (nonatomic,strong) MPVolumeView* volumeView;
@@ -41,6 +53,8 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 @property (nonatomic,strong) UISlider* systemSlider;
 @property (nonatomic,strong) UITapGestureRecognizer* singleTap;
 @property (nonatomic,strong) id playObserve;
+
+
 
 @end
 
@@ -76,6 +90,8 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     [self addSubview:self.loadingView];
     //topview
     [self addSubview:self.topView];
+    //touch view
+    [self addSubview:self.touchView];
     //bottomView
     [self addSubview:self.bottomView];
     //自动适应尺寸
@@ -88,6 +104,7 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     [self addSubview:self.systemSlider];
     //slider change
     [self addSubview:self.volumeSlider];
+    
     [self.bottomView addSubview:self.progressSlider];
     [self.bottomView addSubview:self.loadingProgress];
     [self.bottomView sendSubviewToBack:self.loadingProgress];
@@ -99,12 +116,16 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     [self.bottomView addSubview:self.rightTimeLabel];
     //closeBtn
     [self.topView addSubview:self.closeBtn];
+    
+    //timeView
+    [self addSubview:self.timeSheetView];
+    
     //titleLabel
     [self.topView addSubview:self.titleLbl];
     [self addSubview:self.loadingFailedLbl];
     [self bringSubviewToFront:self.loadingView];
     [self bringSubviewToFront:self.bottomView];
-    [self addGestureRecognizer:self.singleTap];
+    [self.touchView addGestureRecognizer:self.singleTap];
     [self addConstraints];
     [self addNotification];
 }
@@ -121,12 +142,21 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         make.right.equalTo(self).with.offset(0);
         make.height.mas_equalTo(40);
     }];
+    
     [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self).with.offset(0);
         make.right.equalTo(self).with.offset(0);
         make.bottom.equalTo(self).with.offset(0);
         make.height.mas_equalTo(40);
     }];
+    
+    [self.touchView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self).with.offset(40);
+        make.left.equalTo(self).with.offset(0);
+        make.right.equalTo(self).with.offset(0);
+        make.bottom.equalTo(self.bottomView).with.offset(0);
+    }];
+    
     [self.playOrPauseBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.width.mas_equalTo(40);
         make.height.mas_equalTo(40);
@@ -178,6 +208,14 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         make.width.equalTo(self);
         make.height.equalTo(@30);
     }];
+
+   [self.timeSheetView mas_makeConstraints:^(MASConstraintMaker *make) {
+       make.center.equalTo(self);
+       make.width.equalTo(@(120));
+       make.height.equalTo(@60);
+  }];
+    
+
 }
 
 - (void)addNotification
@@ -272,6 +310,125 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
     }];
 }
 
+//平移手势处理
+- (void)handlePan:(UIPanGestureRecognizer*)pan
+{
+    CGPoint touchPoint = [pan locationInView:self.touchView];
+    NSLog(@"(%f,%f)",touchPoint.x,touchPoint.y);
+    
+    //触摸开始，初始化一些值
+    if ([(UIPanGestureRecognizer*)pan state] == UIGestureRecognizerStateBegan) {
+         _hasMoved = NO;
+        _controlJudge = NO;
+        _touchBeginPlayTimeValue = self.progressSlider.value;
+        _touchBeginVoiceValue = self.systemSlider.value;
+        _touchBeginLightValue = [UIScreen mainScreen].brightness;
+        _touchBeginPoint = touchPoint;
+    }
+    
+    if ([(UIPanGestureRecognizer*)pan state] == UIGestureRecognizerStateChanged) {
+       //移动距离过小不考虑
+        if (fabs(touchPoint.x - _touchBeginPoint.x) <kLeastMoveDistance && fabs(touchPoint.y - _touchBeginPoint.y) <kLeastMoveDistance) {
+            return;
+        }
+        _hasMoved = YES;
+        
+    //判断手势类型
+    //MFPlayerControlTypeProgress = 0,
+    //MFPlayerControlTypeVoice = 1,
+    //MFPlayerControlTypeLight = 2,
+    //_controlJudge = NO;表示还没有判断出平移的类型
+      if (!_controlJudge) {
+            
+          float tan = fabs(touchPoint.y -_touchBeginPoint.y) / fabs(touchPoint.x - _touchBeginPoint.x);
+          if (tan < 1/ sqrt(3)) {
+               _controlType = MFPlayerControlTypeProgress;
+               _controlJudge = YES;
+          }else if (tan > sqrt(3)){
+          //判断是声音或者亮度类型
+              if (touchPoint.x <=self.touchView.frame.size.width / 2) {
+                 _controlType = MFPlayerControlTypeLight;
+              }else if (touchPoint.x < self.touchView.frame.size.width /2){
+                  _controlType = MFPlayerControlTypeVoice;
+              }
+                _controlJudge = YES;
+          }else {
+              _controlType = MFPlayerControlTypeNone;
+              return;
+      }
+          
+         
+          //更新进度
+          if (_controlType == MFPlayerControlTypeProgress) {
+              
+             
+              
+              
+              
+         //更新声音
+          }else if (_controlType == MFPlayerControlTypeVoice){
+          
+              
+          
+          
+          //更新亮度
+          }else if (_controlType == MFPlayerControlTypeLight){
+          
+              
+          
+          //未知手势
+          }else if (_controlType == MFPlayerControlTypeNone){
+          
+              
+          
+          }
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+        
+      }
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    }
+
+}
+
 //关闭视频播放
 - (void)colseTheVideo:(UIButton*)btn
 {
@@ -322,6 +479,10 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 //更新系统声音
 - (void)updateSystemVolumeValue:(UISlider*)slider
 {
+    
+    
+    
+    
     
 }
 
@@ -592,6 +753,16 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
 
 #pragma mark set and get method
 
+-(TimeSheetView *)timeSheetView
+{
+    if (!_timeSheetView) {
+        _timeSheetView = [[TimeSheetView alloc]initWithFrame:CGRectMake(0, 0, 120, 60)];
+        _timeSheetView.layer.cornerRadius = 10.0;
+        _timeSheetView.hidden = NO;
+    }
+    return _timeSheetView;
+}
+
 -(UIActivityIndicatorView *)loadingView
 {
     if (!_loadingView) {
@@ -607,6 +778,20 @@ static void *AVPlayerPlayBackViewStatusObservationContext = &AVPlayerPlayBackVie
         _topView.backgroundColor = [UIColor colorWithWhite:0.4 alpha:0.4];
     }
     return _topView;
+}
+
+-(UIView *)touchView
+{
+    if (!_touchView) {
+         _touchView = [[UIView alloc]init];
+         _touchView.backgroundColor = [UIColor clearColor];
+        UIPanGestureRecognizer* panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(handlePan:)];
+        [panGesture setMinimumNumberOfTouches:1];
+        [panGesture setMaximumNumberOfTouches:1];
+        [panGesture setDelegate:self];
+        [self.touchView addGestureRecognizer:panGesture];
+    }
+    return _touchView;
 }
 
 -(UIView *)bottomView

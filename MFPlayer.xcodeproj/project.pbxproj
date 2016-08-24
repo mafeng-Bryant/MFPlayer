@@ -53,6 +53,8 @@
 		E2923A741D53326C0058BAC6 /* NetEaseViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A721D53326C0058BAC6 /* NetEaseViewController.xib */; };
 		E2923A781D5333120058BAC6 /* PersonCenterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2923A761D5333120058BAC6 /* PersonCenterViewController.m */; };
 		E2923A791D5333120058BAC6 /* PersonCenterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */; };
+		E2BCABA51D6C2782006FD150 /* systemLightView.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BCABA41D6C2782006FD150 /* systemLightView.m */; };
+		E2BCABA81D6C6FA6006FD150 /* TimeSheetView.m in Sources */ = {isa = PBXBuildFile; fileRef = E2BCABA71D6C6FA6006FD150 /* TimeSheetView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,6 +145,10 @@
 		E2923A761D5333120058BAC6 /* PersonCenterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PersonCenterViewController.m; sourceTree = "<group>"; };
 		E2923A771D5333120058BAC6 /* PersonCenterViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PersonCenterViewController.xib; sourceTree = "<group>"; };
 		E297F3171D5DADA2001D9B96 /* MFPlayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MFPlayer.entitlements; sourceTree = "<group>"; };
+		E2BCABA31D6C2782006FD150 /* systemLightView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = systemLightView.h; sourceTree = "<group>"; };
+		E2BCABA41D6C2782006FD150 /* systemLightView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = systemLightView.m; sourceTree = "<group>"; };
+		E2BCABA61D6C6FA6006FD150 /* TimeSheetView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSheetView.h; sourceTree = "<group>"; };
+		E2BCABA71D6C6FA6006FD150 /* TimeSheetView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeSheetView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -363,6 +369,10 @@
 				E22BA03C1D533BD3004DEDA4 /* VideoCell.h */,
 				E22BA03D1D533BD3004DEDA4 /* VideoCell.m */,
 				E22BA03E1D533BD3004DEDA4 /* VideoCell.xib */,
+				E2BCABA31D6C2782006FD150 /* systemLightView.h */,
+				E2BCABA41D6C2782006FD150 /* systemLightView.m */,
+				E2BCABA61D6C6FA6006FD150 /* TimeSheetView.h */,
+				E2BCABA71D6C6FA6006FD150 /* TimeSheetView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -587,9 +597,11 @@
 				E2923A2A1D53270F0058BAC6 /* DataManager.m in Sources */,
 				E2923A531D532B0B0058BAC6 /* SidModel.m in Sources */,
 				E2923A781D5333120058BAC6 /* PersonCenterViewController.m in Sources */,
+				E2BCABA51D6C2782006FD150 /* systemLightView.m in Sources */,
 				E2923A261D531EC00058BAC6 /* MFRootTabBarController.m in Sources */,
 				E29239F11D53192B0058BAC6 /* main.m in Sources */,
 				E2923A651D532FF40058BAC6 /* MBProgressHUD.m in Sources */,
+				E2BCABA81D6C6FA6006FD150 /* TimeSheetView.m in Sources */,
 				E2923A561D532B7F0058BAC6 /* VideoModel.m in Sources */,
 				E2923A6E1D53323B0058BAC6 /* SinaViewController.m in Sources */,
 				E2923A631D532FF40058BAC6 /* MBProgressHUD+Show.m in Sources */,

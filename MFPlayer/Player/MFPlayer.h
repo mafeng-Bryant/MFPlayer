@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import "Masonry.h"
+#import "TimeSheetView.h"
+
 
 @import MediaPlayer;
 @import UIKit;
@@ -28,6 +30,13 @@ typedef enum {
  MFPlayerCloseBtnStylePop = 0, //(->)
  MFPlayerCloseBtnStyleClose = 1 //(X)
 }MFPlayerCloseBtnStyle;
+
+typedef enum {
+ MFPlayerControlTypeProgress = 0,
+ MFPlayerControlTypeVoice = 1,
+ MFPlayerControlTypeLight = 2,
+ MFPlayerControlTypeNone = 3
+}MFPlayerControlType;
 
 @class MFPlayer;
 
@@ -59,6 +68,8 @@ typedef enum {
 @property (nonatomic,strong) UIView* topView;
 //底部视图
 @property (nonatomic,strong) UIView* bottomView;
+//touch view
+@property (nonatomic,strong) UIView* touchView;
 //播放视频的标题
 @property (nonatomic,strong) UILabel* titleLbl;
 //播放器的状态
@@ -87,6 +98,10 @@ typedef enum {
 @property (nonatomic,assign) double seekTime;
 
 @property (nonatomic,assign) id<MFPlayerDelegate> delegate;
+
+@property (nonatomic,assign) MFPlayerControlType controlType; //当前手势控制的进度，声音还是亮度类型
+
+@property (nonatomic,strong) TimeSheetView* timeSheetView; //快进的视图
 
 //播放
 - (void)play;
